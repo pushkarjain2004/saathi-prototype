@@ -15,7 +15,7 @@ All people, companies and counsellors in it are fictional.
 1. Push this folder to a GitHub repository.
 2. In Netlify: Add new site → Import an existing project → pick the repository. No build command; publish directory is `.`.
 3. Site configuration → Environment variables → add `GEMINI_API_KEY` (from https://aistudio.google.com).
-   Optional: `GEMINI_MODEL` to choose the model (default `gemini-2.5-flash`). Use a model your free tier lists.
+   Optional: `GEMINI_MODEL` to force a model. If unset, the function picks the newest "flash" model your key can use.
 4. Trigger a redeploy. The "Behind the scenes" panel shows "Real AI connected" when it works.
 
 Never put the key in `index.html` or commit it to the repository.
