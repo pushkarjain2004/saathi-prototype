@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Saathi by YourDOST</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a phone-sized app in the centre, a "behind the scenes" panel for reviewers beside it (bottom drawer on phones). */
+:root {
+  --bg: #eef3f2; --surface: #ffffff; --surface-2: #f4f8f7; --line: #dbe5e3;
+  --fg: #14302e; --sub: #4d6663; --mute: #7f9693;
+  --accent: #0f766e; --accent-2: #115e59; --accent-soft: #dff2ef;
+  --navy: #12324a;
+  --warn: #b45309; --warn-soft: #fff4e0;
+  --help: #c2410c; --help-soft: #fdece4;
+  --ok: #15803d; --ok-soft: #e4f5e9;
+  --code-bg: #0f2422; --code-fg: #cfe8e4;
+  --shadow: 0 10px 40px rgba(18, 50, 74, .12);
+  --f-head: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b1615; --surface: #12211f; --surface-2: #172a28; --line: #24403c;
+  --fg: #e3f0ee; --sub: #a5bfbb; --mute: #7a9692;
+  --accent: #2dd4bf; --accent-2: #5eead4; --accent-soft: #123b37;
+  --navy: #9cc3e0;
+  --warn: #fbbf24; --warn-soft: #33260c;
+  --help: #fb923c; --help-soft: #3a1e10;
+  --ok: #4ade80; --ok-soft: #10301b;
+  --code-bg: #060d0c; --code-fg: #cfe8e4;
+  --shadow: 0 10px 40px rgba(0,0,0,.4);
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0b1615; --surface: #12211f; --surface-2: #172a28; --line: #24403c;
+  --fg: #e3f0ee; --sub: #a5bfbb; --mute: #7a9692;
+  --accent: #2dd4bf; --accent-2: #5eead4; --accent-soft: #123b37;
+  --navy: #9cc3e0;
+  --warn: #fbbf24; --warn-soft: #33260c;
+  --help: #fb923c; --help-soft: #3a1e10;
+  --ok: #4ade80; --ok-soft: #10301b;
+  --code-bg: #060d0c; --code-fg: #cfe8e4;
+  --shadow: 0 10px 40px rgba(0,0,0,.4);
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5; margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3, h4 { font-family: var(--f-head); margin: 0; text-wrap: balance; color: var(--fg); }
+button { font: inherit; cursor: pointer; color: inherit; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+a { color: var(--accent); }
+
+/* Demo bar */
+.demobar { max-width: 1180px; margin: 0 auto; padding-block: 14px 10px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand b { font-family: var(--f-head); font-size: 18px; color: var(--navy); }
+.brand span { font-size: 12.5px; color: var(--sub); }
+.personas { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.personas small { font-size: 12px; color: var(--sub); margin-right: 2px; }
+.pbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13px; display: flex; gap: 6px; align-items: center; }
+.pbtn[aria-pressed="true"] { background: var(--navy); color: var(--surface); border-color: var(--navy); }
+.pbtn .av { width: 20px; height: 20px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-weight: 700; background: var(--accent-soft); color: var(--accent-2); }
+.pbtn[aria-pressed="true"] .av { background: var(--accent); color: #fff; }
+.toolbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+
+/* Stage */
+.stage { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 24px; align-items: start; padding-block: 0 32px; }
+.stage.nopanel { grid-template-columns: minmax(0, 420px); justify-content: center; }
+
+/* Phone */
+.phone { background: var(--surface); border-radius: 28px; box-shadow: var(--shadow); border: 1px solid var(--line); overflow: hidden; display: flex; flex-direction: column; height: min(820px, calc(100vh - 90px)); min-height: 600px; position: relative; }
+.appbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 10px; border-bottom: 1px solid var(--line); }
+.appbar .logo { font-family: var(--f-head); font-weight: 800; font-size: 16px; color: var(--navy); }
+.appbar .logo i { font-style: normal; color: var(--accent); }
+.appbar .dayp { font-size: 12px; color: var(--sub); background: var(--surface-2); padding: 3px 9px; border-radius: 999px; }
+.screen { flex: 1; overflow-y: auto; padding: 18px 18px 24px; display: flex; flex-direction: column; gap: 14px; }
+.nav { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); background: var(--surface); }
+.nav button { background: none; border: 0; padding: 9px 2px 11px; font-size: 11.5px; color: var(--sub); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.nav button svg { width: 20px; height: 20px; }
+.nav button[aria-current="page"] { color: var(--accent); font-weight: 600; }
+.nav button.helpnav { color: var(--help); }
+
+/* Common blocks */
+.hello h1 { font-size: 22px; }
+.hello p { margin: 2px 0 0; color: var(--sub); font-size: 14px; }
+.eyebrow { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.card.soft { background: var(--surface-2); border-color: transparent; }
+.card.saathi { background: linear-gradient(160deg, var(--accent-soft), var(--surface) 75%); border-color: var(--accent-soft); }
+.card h2 { font-size: 18px; line-height: 1.3; }
+.card h3 { font-size: 15.5px; }
+.card p { margin: 0; color: var(--sub); font-size: 14px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.between { justify-content: space-between; }
+.btn { border: 0; border-radius: 12px; padding: 11px 16px; font-weight: 600; font-size: 14.5px; background: var(--accent); color: #fff; }
+:root[data-theme="dark"] .btn { color: #062320; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn { color: #062320; } }
+.btn.block { width: 100%; }
+.btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+.btn.help { background: var(--help); color: #fff; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.link { background: none; border: 0; padding: 0; color: var(--accent); font-weight: 600; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13.5px; }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-2); font-weight: 600; }
+.tag { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 6px 5px 12px; font-size: 13.5px; background: var(--accent-soft); color: var(--accent-2); font-weight: 600; }
+.tag button { border: 0; background: transparent; width: 22px; height: 22px; border-radius: 50%; font-size: 14px; line-height: 1; color: var(--accent-2); }
+.tag button:hover { background: var(--surface); }
+.pill { display: inline-block; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--sub); }
+.pill.t-video { background: #e6effd; color: #1d4ed8; } .pill.t-article { background: #f1ebfd; color: #6d28d9; }
+.pill.t-exercise { background: var(--ok-soft); color: var(--ok); } .pill.t-assessment { background: var(--warn-soft); color: var(--warn); }
+.pill.t-program { background: var(--accent-soft); color: var(--accent-2); } .pill.t-chat, .pill.t-session { background: var(--help-soft); color: var(--help); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pill.t-video { background:#14264a; color:#93b4f5 } :root:not([data-theme="light"]) .pill.t-article { background:#2a1c47; color:#c4a8f5 } }
+:root[data-theme="dark"] .pill.t-video { background:#14264a; color:#93b4f5 } :root[data-theme="dark"] .pill.t-article { background:#2a1c47; color:#c4a8f5 }
+textarea, input[type="text"], input[type="password"], select { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; font: inherit; background: var(--surface); color: var(--fg); }
+textarea { min-height: 96px; resize: vertical; }
+label.q { font-weight: 600; font-size: 14px; color: var(--fg); }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.seg button { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 9px 4px; font-size: 13px; }
+.seg button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-2); font-weight: 600; }
+.note { font-size: 12.5px; color: var(--sub); display: flex; gap: 8px; align-items: flex-start; }
+.note svg { flex: none; width: 15px; height: 15px; margin-top: 2px; color: var(--accent); }
+.banner { border-radius: 12px; padding: 12px 14px; font-size: 14px; display: flex; flex-direction: column; gap: 8px; }
+.banner.warn { background: var(--warn-soft); color: var(--fg); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); }
+.banner.help { background: var(--help-soft); border: 1px solid color-mix(in srgb, var(--help) 35%, transparent); }
+.banner.ok { background: var(--ok-soft); }
+.back { align-self: flex-start; background: none; border: 0; color: var(--sub); font-size: 13.5px; padding: 0; }
+.opt { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 11px 14px; font-size: 14.5px; width: 100%; }
+.opt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile { border: 1px solid var(--line); border-radius: 12px; padding: 10px 6px; text-align: center; font-size: 12.5px; color: var(--sub); background: var(--surface); }
+.tile b { display: block; font-size: 18px; margin-bottom: 2px; }
+.muted { color: var(--sub); }
+.small { font-size: 12.5px; }
+
+/* Recommendation */
+.rec-main { border: 2px solid var(--accent); }
+.rec-main h2 { font-size: 19px; }
+.why { background: var(--surface-2); border-radius: 10px; padding: 9px 12px; font-size: 13.5px; color: var(--fg); }
+.why b { color: var(--accent-2); }
+.rec-alt { flex-direction: row; align-items: center; gap: 12px; padding: 12px 14px; text-align: left; width: 100%; }
+.rec-alt .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rec-alt .txt b { font-size: 14.5px; font-family: var(--f-head); }
+.rec-alt .txt span { font-size: 12.5px; color: var(--sub); }
+.chev { color: var(--mute); font-size: 20px; }
+
+/* Doing */
+.player { aspect-ratio: 16/9; max-width: 100%; border-radius: 14px; background: linear-gradient(135deg, #12324a, #0f766e); display: grid; place-items: center; position: relative; overflow: hidden; color: #fff; }
+.player .playb { width: 58px; height: 58px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); color: #12324a; font-size: 22px; }
+.player .bar { position: absolute; left: 12px; right: 12px; bottom: 12px; height: 5px; background: rgba(255,255,255,.3); border-radius: 3px; }
+.player .bar i { display: block; height: 100%; width: 0; background: #fff; border-radius: 3px; transition: width .3s linear; }
+.player .cap { position: absolute; left: 14px; top: 12px; font-size: 12px; opacity: .85; }
+.breath { width: 150px; height: 150px; border-radius: 50%; margin: 8px auto; background: radial-gradient(circle, var(--accent-soft), var(--accent)); display: grid; place-items: center; color: #fff; font-weight: 700; font-family: var(--f-head); animation: breathe 16s ease-in-out infinite; }
+@keyframes breathe { 0%,100% { transform: scale(.7) } 25%, 50% { transform: scale(1) } 75% { transform: scale(.7) } }
+@media (prefers-reduced-motion: reduce) { .breath { animation: none; } }
+.article p { color: var(--fg); font-size: 14.5px; }
+.slot { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--surface); font-size: 13.5px; }
+.slot[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.bubble { background: var(--surface-2); border-radius: 14px 14px 14px 4px; padding: 10px 12px; font-size: 14px; max-width: 88%; }
+.bubble.me { align-self: flex-end; background: var(--accent-soft); border-radius: 14px 14px 4px 14px; }
+.toggle { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; }
+.toggle input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); flex: none; }
+
+/* Journey */
+.tl { display: flex; flex-direction: column; gap: 0; }
+.tl .ev { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding-bottom: 14px; position: relative; }
+.tl .ev::before { content: ""; position: absolute; left: 10px; top: 20px; bottom: 0; width: 2px; background: var(--line); }
+.tl .ev:last-child::before { display: none; }
+.tl .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--accent-soft); border: 2px solid var(--accent); }
+.tl .dot.h { background: var(--help-soft); border-color: var(--help); }
+.tl .ev b { font-size: 14px; display: block; }
+.tl .ev span { font-size: 12.5px; color: var(--sub); }
+
+/* Crisis */
+.crisis h1 { font-size: 22px; }
+.helpline { display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.helpline b { font-family: var(--f-head); font-size: 20px; letter-spacing: .02em; user-select: all; }
+.helpline span { font-size: 12.5px; color: var(--sub); display: block; }
+
+/* Loader */
+.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; flex: 1; color: var(--sub); }
+.spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--accent-soft); border-top-color: var(--accent); animation: sp 0.9s linear infinite; }
+@keyframes sp { to { transform: rotate(360deg) } }
+.toast { position: absolute; left: 16px; right: 16px; bottom: 74px; background: var(--navy); color: var(--surface); padding: 10px 14px; border-radius: 12px; font-size: 13.5px; box-shadow: var(--shadow); }
+
+/* Reviewer panel */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; display: flex; flex-direction: column; height: min(820px, calc(100vh - 90px)); min-height: 600px; overflow: hidden; }
+.panel header { padding: 14px 18px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.panel header h2 { font-size: 16px; }
+.panel header p { margin: 0; font-size: 12.5px; color: var(--sub); }
+.pbody { overflow-y: auto; padding: 14px 18px 22px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.psec { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.psec h3 { font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--sub); }
+.psec .who { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .05em; }
+.who.ai { background: #f1ebfd; color: #6d28d9; } .who.rule { background: var(--surface-2); color: var(--sub); } .who.human { background: var(--help-soft); color: var(--help); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .who.ai { background:#2a1c47; color:#c4a8f5 } }
+:root[data-theme="dark"] .who.ai { background:#2a1c47; color:#c4a8f5 }
+.step { display: grid; grid-template-columns: 26px 1fr; gap: 10px; min-width: 0; }
+.step .n { width: 26px; height: 26px; border-radius: 8px; background: var(--navy); color: var(--surface); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.step .c { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.step .c > div:first-child { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.step .c b { font-size: 14px; }
+.step .c p { margin: 0; font-size: 13px; color: var(--sub); }
+pre.code { background: var(--code-bg); color: var(--code-fg); font-family: var(--f-mono); font-size: 11.5px; padding: 10px 12px; border-radius: 10px; margin: 0; overflow-x: auto; white-space: pre-wrap; word-break: break-word; max-height: 240px; }
+.tbl { overflow-x: auto; }
+.tbl table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+.tbl th, .tbl td { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tbl th { color: var(--sub); font-weight: 600; }
+.tbl tr.top td { font-weight: 700; color: var(--accent-2); }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; }
+.kv dt { color: var(--sub); } .kv dd { margin: 0; }
+.empty { font-size: 13px; color: var(--sub); }
+.ok-t { color: var(--ok); font-weight: 600; } .warn-t { color: var(--warn); font-weight: 600; } .help-t { color: var(--help); font-weight: 600; }
+
+@media (max-width: 600px) { .pbtn .muted { display: none; } .brand span { display: none; } }
+@media (max-width: 860px) {
+  .stage { grid-template-columns: minmax(0, 1fr); }
+  .phone { height: calc(100vh - 120px); min-height: 560px; border-radius: 22px; }
+  .panel { position: fixed; left: 0; right: 0; bottom: 0; height: 78vh; min-height: 0; z-index: 20; border-radius: 18px 18px 0 0; box-shadow: var(--shadow);
+    padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+}
+</style>
+</head>
+<body>
+
+
+<div class="demobar">
+  <div class="brand"><b>Saathi</b><span>YourDOST prototype · all people and data are fictional</span></div>
+  <div class="personas" id="personas"></div>
+  <div class="row">
+    <button class="toolbtn" id="panelBtn" aria-expanded="true">Behind the scenes</button>
+    <button class="toolbtn" id="resetBtn">Reset demo</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <section class="phone" aria-label="Saathi app">
+    <div class="appbar"><span class="logo">YourDOST · <i>Saathi</i></span><span class="dayp" id="dayp"></span></div>
+    <main class="screen" id="screen"></main>
+    <div id="toastHost"></div>
+    <nav class="nav" id="nav"></nav>
+  </section>
+  <aside class="panel" id="panel" aria-label="Behind the scenes"></aside>
+</div>
+
+<script>
+/* ================= DATA (all fictional) ================= */
+const THEMES = {
+  work_stress: "Work stress", sleep: "Poor sleep", anxiety: "Anxiety / worry", low_mood: "Feeling low",
+  burnout: "Burnout", loneliness: "Loneliness", relationships: "Relationships", anger: "Anger / irritability",
+  exam_stress: "Exam stress", focus: "Focus", grief: "Grief / loss", self_esteem: "Self-confidence",
+  smoking: "Smoking", parenting: "Parenting"
+};
+const DURATION = { days: "A few days", weeks: "A few weeks", months: "Months or more", unknown: "Not sure" };
+const SEVERITY = { mild: "A little", moderate: "Quite a bit", high: "A lot" };
+const TYPE_LABEL = { video: "Video", article: "Article", exercise: "Exercise", assessment: "Self-check", program: "Program", chat: "Instant chat", session: "Session" };
+const LEVEL = { video: 1, article: 1, exercise: 1, assessment: 2, program: 2, chat: 3, session: 3 };
+const FORMAT = { video: "watch", article: "read", exercise: "do", assessment: "do", program: "do", chat: "talk", session: "talk" };
+
+const CATALOGUE = [
+  { id: "v1", type: "video", title: "Wind-down for better sleep", mins: 10, themes: ["sleep"], desc: "A guided routine to slow your body and mind before bed." },
+  { id: "v3", type: "video", title: "Switching off after work", mins: 8, themes: ["work_stress", "burnout"], desc: "Simple ways to leave work at work, even when you work from home." },
+  { id: "v4", type: "video", title: "Grounding when your mind races", mins: 6, themes: ["anxiety"], desc: "The 5-4-3-2-1 method to bring yourself back to the present." },
+  { id: "v5", type: "video", title: "Cooling down before you snap", mins: 7, themes: ["anger", "relationships", "parenting"], desc: "Notice the early signs of anger and buy yourself a pause." },
+  { id: "v6", type: "video", title: "Focus sprints that actually work", mins: 6, themes: ["focus", "exam_stress"], desc: "Short timed blocks with breaks, made for tired brains." },
+  { id: "a1", type: "article", title: "Why stress steals your sleep", mins: 5, themes: ["sleep", "work_stress", "anxiety"], desc: "What happens in your body, and three small changes that help.",
+    body: ["When you are stressed, your body stays on alert, so falling asleep feels like trying to brake while pressing the accelerator.", "Three changes help most people: a fixed wake-up time, no work messages in the last hour before bed, and writing tomorrow's worries on paper so your mind can let go of them.", "If poor sleep lasts more than a few weeks, it is worth talking to a counsellor. Sleep and mood affect each other."] },
+  { id: "a2", type: "article", title: "Spotting burnout early", mins: 6, themes: ["burnout", "work_stress"], desc: "The difference between a busy month and burnout.",
+    body: ["Burnout is more than being busy. It is a mix of exhaustion, feeling distant from your work, and feeling that nothing you do is enough.", "Early signs include dreading Monday on Saturday, getting irritated by small things, and feeling tired even after rest.", "Small boundaries help, such as a fixed log-off time. If it keeps growing, a counsellor can help you plan what to change."] },
+  { id: "a3", type: "article", title: "Working with a tough manager", mins: 7, themes: ["work_stress"], desc: "Practical scripts for difficult conversations at work.",
+    body: ["A difficult manager can make every day feel heavy. It helps to separate what you can change from what you cannot.", "Try writing down the two or three situations that bother you most. Then plan one short, calm sentence for each one, such as asking for clear priorities when everything is marked urgent.", "If the situation affects your sleep or health, talking it through with a counsellor can help you decide your next move."] },
+  { id: "a4", type: "article", title: "Feeling low or something more?", mins: 5, themes: ["low_mood"], desc: "How to tell a bad week from something that needs support.",
+    body: ["Everyone has low days. When the low feeling stays for two weeks or more, or you lose interest in things you used to enjoy, it is a signal to get support.", "Small steps such as a short walk, a message to a friend or a regular meal time can lift the floor a little.", "A short mood self-check can help you see where you are, and a counsellor can help you understand it."] },
+  { id: "a5", type: "article", title: "Making connections in a new city", mins: 5, themes: ["loneliness"], desc: "Small, low-pressure ways to feel less alone.",
+    body: ["Moving for work often means leaving your support system behind, and loneliness can creep in quietly.", "Start small: one regular activity, one colleague to have lunch with, one weekly call home at a fixed time.", "Feeling lonely is common and nothing to be ashamed of. Talking about it helps."] },
+  { id: "a6", type: "article", title: "Study plans that reduce exam panic", mins: 6, themes: ["exam_stress", "focus"], desc: "A simple weekly plan that leaves room for rest.",
+    body: ["Exam panic often comes from a pile of topics with no plan. A plan turns the pile into steps.", "List the topics, split them across the days you have, and keep one free evening each week. Study in 25-minute blocks with 5-minute breaks.", "Sleep is part of studying. Memory is built while you sleep."] },
+  { id: "a7", type: "article", title: "Talking when you're both tired", mins: 5, themes: ["relationships"], desc: "How to have a hard conversation without it becoming a fight.",
+    body: ["Many arguments happen at the end of a long day, when both people have nothing left.", "Agree on a better time to talk, start with how you feel instead of what they did, and take a break if voices rise.", "If the same fight keeps coming back, a counsellor can help you both see the pattern."] },
+  { id: "a8", type: "article", title: "Living with loss", mins: 7, themes: ["grief"], desc: "There is no right way to grieve. Here is what helps.",
+    body: ["Grief comes in waves, and it does not follow a timeline.", "It can help to keep small routines, let people help with practical things, and set aside time to remember.", "If grief makes daily life very hard for a long time, speaking with a counsellor can help."] },
+  { id: "e1", type: "exercise", title: "Thought journal", mins: 10, themes: ["anxiety", "low_mood", "self_esteem", "work_stress"], desc: "Write down a hard moment, the thought behind it, and a kinder way to see it." },
+  { id: "e2", type: "exercise", title: "Three good things", mins: 3, themes: ["low_mood", "self_esteem"], desc: "Note three small things that went okay today." },
+  { id: "e3", type: "exercise", title: "Box breathing", mins: 4, themes: ["anxiety", "work_stress", "exam_stress", "anger"], desc: "Breathe in 4, hold 4, out 4, hold 4. Calms your body in minutes." },
+  { id: "e4", type: "exercise", title: "Worry time", mins: 10, themes: ["anxiety", "sleep"], desc: "Park your worries in a 10-minute slot so they don't follow you to bed." },
+  { id: "s1", type: "assessment", title: "Stress check", mins: 4, themes: ["work_stress", "burnout", "exam_stress"], desc: "10 questions (based on the Perceived Stress Scale) to see how stressed you've been." },
+  { id: "s2", type: "assessment", title: "Mood check", mins: 4, themes: ["low_mood"], desc: "9 questions (based on PHQ-9) about your mood over the last two weeks." },
+  { id: "s3", type: "assessment", title: "Worry check", mins: 3, themes: ["anxiety"], desc: "7 questions (based on GAD-7) about worry and nervousness." },
+  { id: "s4", type: "assessment", title: "Sleep check", mins: 3, themes: ["sleep"], desc: "A quick look at how well you've been sleeping." },
+  { id: "p1", type: "program", title: "7-day sleep reset", mins: 10, perDay: true, days: 7, themes: ["sleep"], desc: "10 minutes a day to rebuild a calmer bedtime routine.", plan: ["Set a fixed wake-up time", "A 10-minute wind-down", "Move worries onto paper", "Screens off 45 minutes before bed"] },
+  { id: "p2", type: "program", title: "21-day gratitude", mins: 5, perDay: true, days: 21, themes: ["low_mood", "self_esteem"], desc: "A 5-minute daily practice that gently lifts mood.", plan: ["Three good things", "Thank one person", "Notice one small win"] },
+  { id: "p3", type: "program", title: "Beat exam stress", mins: 10, perDay: true, days: 5, themes: ["exam_stress", "focus"], desc: "5 days, 10 minutes each: plan, focus, rest and calm nerves.", plan: ["Make a study plan you can keep", "Focus sprints", "Calm your body before a paper"] },
+  { id: "p4", type: "program", title: "Burnout recovery", mins: 10, perDay: true, days: 14, themes: ["burnout", "work_stress"], desc: "Two weeks of small steps to get your energy back.", plan: ["Map where your energy goes", "One boundary at work", "Rest that actually restores you"] },
+  { id: "p5", type: "program", title: "Quit smoking", mins: 10, perDay: true, days: 28, themes: ["smoking"], desc: "A 28-day plan with cravings support and counsellor check-ins.", plan: ["Pick your quit date", "Know your triggers", "Ride out a craving"] },
+  { id: "p6", type: "program", title: "Calm mind", mins: 10, perDay: true, days: 10, themes: ["anxiety"], desc: "10 days of short practices for everyday worry.", plan: ["Notice the worry loop", "Grounding", "Worry time"] },
+  { id: "c1", type: "chat", title: "Chat with a counsellor now", mins: 15, themes: ["*"], desc: "A trained counsellor replies in a few minutes, 24×7. Text only, no video." },
+  { id: "c2", type: "session", title: "Book a counselling session", mins: 50, themes: ["*"], desc: "A 50-minute private video or audio session with a counsellor matched to you." }
+];
+const byId = id => CATALOGUE.find(i => i.id === id);
+
+const PERSONAS = {
+  ananya: { id: "ananya", name: "Ananya", full: "Ananya Rao", initial: "A", role: "Analyst, 3 months into a new job", org: "Northwind Analytics", orgType: "employee",
+    knownNames: ["Ananya", "Rao", "Northwind"], counsellor: null,
+    blurb: "New employee. Has never used YourDOST.", example: "Can't sleep properly for 3 weeks. My new manager Vikram keeps changing deadlines and I feel tired all the time. Call me on 9876543210 if needed." },
+  rahul: { id: "rahul", name: "Rahul", full: "Rahul Menon", initial: "R", role: "Project lead", org: "Northwind Analytics", orgType: "employee",
+    knownNames: ["Rahul", "Menon", "Northwind"],
+    counsellor: { name: "Dr. Kavya Iyer", short: "Dr. Kavya", nextSessionDay: 2, nextSessionLabel: "Thursday, 7:00 pm", earlierSlot: "Tomorrow, 8:00 pm" },
+    homework: { id: "e1", dayDone: 2, of: 5 },
+    blurb: "Sees a counsellor. Between sessions.", example: "Office mein bahut tension hai, raat ko neend nahi aati. Journal kar raha hoon but thoughts ruk nahi rahe." },
+  meera: { id: "meera", name: "Meera", full: "Meera Das", initial: "M", role: "2nd-year student", org: "Lakeview College", orgType: "student",
+    knownNames: ["Meera", "Das", "Lakeview"], counsellor: null, examsInDays: 12,
+    blurb: "College student. Stress score went up.", example: "Exams in 2 weeks and I can't focus at all. I keep comparing myself to my friends and feel like a failure." }
+};
+
+function seedJourney(pid) {
+  if (pid === "rahul") return [
+    { day: -40, kind: "checkin", title: "First check-in", detail: "Work stress · Anxiety / worry" },
+    { day: -35, kind: "session", title: "Session 1 with Dr. Kavya Iyer", human: true },
+    { day: -21, kind: "session", title: "Session 2 with Dr. Kavya Iyer", human: true },
+    { day: -5, kind: "session", title: "Session 3 with Dr. Kavya Iyer", human: true, detail: "Homework: thought journal, 5 days" },
+    { day: -3, kind: "step", item: "e1", title: "Thought journal, day 1", outcome: null },
+    { day: -1, kind: "step", item: "e1", title: "Thought journal, day 2", outcome: null }
+  ];
+  if (pid === "meera") return [
+    { day: -30, kind: "step", item: "s1", title: "Stress check: score 14 (moderate)", outcome: "done", score: 14 },
+    { day: -29, kind: "step", item: "v6", title: "Watched: Focus sprints that actually work", outcome: "helped" },
+    { day: -2, kind: "step", item: "s1", title: "Stress check: score 22 (high)", outcome: "done", score: 22 }
+  ];
+  return [];
+}
+
+/* ================= STATE ================= */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const S = {
+  pid: "ananya", screen: "home", day: 0,
+  panelOpen: window.innerWidth > 860,
+  settings: { mode: "demo", misread: false, outage: false },
+  ai: { available: false, provider: "", model: "" },
+  ck: null, u: null, safety: null, recs: null, ctx: null, current: null, fb: [], pendingFollow: null, log: [], toast: null,
+  flags: {}
+};
+function journey(pid = S.pid) { let j = store.get("saathi.v1.j." + pid, null); if (!j) { j = seedJourney(pid); store.set("saathi.v1.j." + pid, j); } return j; }
+function addEvent(ev) { const j = journey(); j.push({ day: S.day, ...ev }); store.set("saathi.v1.j." + S.pid, j); }
+function prefs(pid = S.pid) { return store.get("saathi.v1.p." + pid, { shareWithCounsellor: false }); }
+function setPrefs(p) { store.set("saathi.v1.p." + S.pid, p); }
+function persona() { return PERSONAS[S.pid]; }
+function freshCheckin() { return { text: "", chips: [], time: null, pref: null }; }
+
+/* ================= PIPELINE ================= */
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function norm(s) { return " " + s.toLowerCase().replace(/[’`]/g, "'").replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ") + " "; }
+
+// 1. Privacy filter: runs in the browser before any AI sees the text.
+function redact(text, p) {
+  const removed = [];
+  let t = text;
+  t = t.replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, m => { removed.push({ kind: "email", value: m }); return "[EMAIL]"; });
+  t = t.replace(/(\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}\b/g, m => { removed.push({ kind: "phone", value: m }); return "[PHONE]"; });
+  t = t.replace(/\b([Mm]y|[Oo]ur)\s+(new\s+)?(manager|boss|lead|team lead|friend|wife|husband|partner|colleague|roommate|mother|father|sister|brother)\s+([A-Z][a-z]+)/g,
+    (m, a, n, rel, name) => { removed.push({ kind: "name", value: name }); return `${a} ${n || ""}${rel} [NAME]`; });
+  t = t.replace(/\b([A-Z][A-Za-z]+(\s[A-Z][A-Za-z]+)*)\s(Pvt\.?\s?Ltd|Ltd|Inc|Technologies|Solutions|Corp|LLP)\b\.?/g, m => { removed.push({ kind: "company", value: m }); return "[COMPANY]"; });
+  for (const n of p.knownNames) {
+    const re = new RegExp("\\b" + n + "\\b", "gi");
+    t = t.replace(re, m => { removed.push({ kind: ["Northwind", "Lakeview"].includes(n) ? "organisation" : "name", value: m }); return ["Northwind", "Lakeview"].includes(n) ? "[ORG]" : "[NAME]"; });
+  }
+  return { text: t, removed };
+}
+
+// 2. Safety rules: fixed lists, run on the user's device, never decided by the AI.
+const CRISIS = ["kill myself", "killing myself", "end my life", "ending my life", "end it all", "suicide", "suicidal", "want to die", "wanna die", "don't want to live", "dont want to live", "do not want to live",
+  "no reason to live", "better off dead", "hurt myself", "harm myself", "self harm", "self-harm", "cut myself", "take my life", "not want to be alive",
+  "marna chahta", "marna chahti", "mar jaun", "mar jaana", "jeena nahi", "zindagi khatam", "khud ko khatam", "jaan de doon", "jaan dena"];
+const CONCERN = ["hopeless", "no point", "give up on everything", "can't go on", "cant go on", "worthless", "nothing matters", "can't cope", "cant cope", "breaking down", "koi fayda nahi", "sab bekaar"];
+function safetyRules(raw) {
+  const t = norm(raw).replace(/ - /g, " ");
+  const crisisHits = CRISIS.filter(w => t.includes(" " + w.replace(/-/g, " ") + " ") || t.includes(w));
+  const concernHits = CONCERN.filter(w => t.includes(w));
+  return { crisisHits, concernHits };
+}
+
+// 3a. Built-in matcher (demo mode, and the fallback whenever live AI fails).
+const LEX = {
+  work_stress: ["work", "office", "manager", "boss", "deadline", "appraisal", "workload", "meeting", "colleague", "job", "client", "kaam", "targets", "promotion", "overtime"],
+  sleep: ["sleep", "insomnia", "awake at night", "neend", "sleepless", "wake up at", "raat ko", "can't sleep", "cant sleep"],
+  anxiety: ["anxious", "anxiety", "panic", "worried", "worry", "nervous", "overthink", "racing", "ghabrahat", "dar lagta", "tension", "restless", "thoughts ruk nahi"],
+  low_mood: ["sad", "feel low", "feeling low", "down", "empty", "hopeless", "no motivation", "crying", "depressed", "udaas", "mann nahi", "dukhi", "numb"],
+  burnout: ["burnt out", "burned out", "burnout", "exhausted", "drained", "tired all the time", "no energy", "thak gaya", "thak gayi", "thaka", "always tired"],
+  loneliness: ["lonely", "alone", "isolated", "no friends", "new city", "akela", "akeli", "nobody to talk"],
+  relationships: ["partner", "wife", "husband", "girlfriend", "boyfriend", "marriage", "fight", "breakup", "break up", "in-laws", "ghar pe", "parents"],
+  anger: ["angry", "anger", "irritated", "irritable", "snapping", "snap at", "temper", "frustrated", "gussa", "chidchida"],
+  exam_stress: ["exam", "exams", "marks", "placement", "semester", "padhai", "grades", "viva", "assignment", "backlog"],
+  focus: ["focus", "concentrate", "distracted", "procrastinat", "dhyan nahi"],
+  grief: ["passed away", "died", "loss of", "grief", "funeral", "guzar gaye", "lost my"],
+  self_esteem: ["confidence", "not good enough", "worthless", "comparing", "compare myself", "imposter", "failure", "useless"],
+  smoking: ["smoke", "smoking", "cigarette", "nicotine", "vape", "quit"],
+  parenting: ["kids", "my child", "my son", "my daughter", "baby", "bachche", "parenting", "toddler"]
+};
+const CHIP_THEME = { "Stressed": "work_stress", "Can't sleep": "sleep", "Anxious": "anxiety", "Low": "low_mood", "Lonely": "loneliness", "Angry": "anger", "Exams": "exam_stress", "Relationship": "relationships", "Burnt out": "burnout", "Can't focus": "focus" };
+function builtinUnderstand(text, chips, timePref) {
+  const t = norm(text);
+  const scores = {};
+  for (const [th, words] of Object.entries(LEX)) for (const w of words) if (t.includes(norm(w).trim())) scores[th] = (scores[th] || 0) + 1;
+  for (const c of chips) { const th = CHIP_THEME[c]; if (th) scores[th] = (scores[th] || 0) + 2; }
+  if (scores.focus && scores.exam_stress) scores.exam_stress += 1;
+  if (scores.smoking && !/smok|cigar|nicotine|vape/.test(t)) delete scores.smoking;
+  const firstPos = th => { let best = 1e9; for (const w of LEX[th] || []) { const i = t.indexOf(norm(w).trim()); if (i >= 0 && i < best) best = i; } return best; };
+  const themes = Object.entries(scores).sort((a, b) => b[1] - a[1] || firstPos(a[0]) - firstPos(b[0])).map(e => e[0]).slice(0, 3);
+  let duration = "unknown";
+  const m = t.match(/(\d+|a|one|two|three|four|few|couple of) ?(day|days|week|weeks|month|months|year|years|din|hafte|hafton|mahine|mahina|saal)/);
+  if (m) { const u = m[2]; duration = /day|din/.test(u) ? "days" : /week|haft/.test(u) ? "weeks" : "months"; }
+  else if (/ lately | recently | these days | aajkal /.test(t)) duration = "weeks";
+  else if (/ always | for ages | for a long time | since childhood /.test(t)) duration = "months";
+  let severity = "mild";
+  const high = ["can't function", "cant function", "every day", "everyday", "all the time", "unbearable", "can't cope", "cant cope", "breaking down", "bahut zyada", "nothing helps", "can't get out of bed", "cant get out of bed", "at all"];
+  const low = ["a bit", "a little", "sometimes", "thoda", "slightly"];
+  const highHits = high.filter(w => t.includes(w)).length;
+  if (highHits >= 2) severity = "high";
+  else if (highHits === 1 || themes.length >= 2 || duration === "weeks" || duration === "months") severity = "moderate";
+  if (low.some(w => t.includes(w)) && severity !== "high") severity = "mild";
+  let preference = "none";
+  if (/ talk to someone | want to talk | someone to talk | baat karni | baat karna | counsellor | therapist /.test(t)) preference = "talk";
+  else if (/ read /.test(t)) preference = "read"; else if (/ video | watch /.test(t)) preference = "watch";
+  const possible_risk = safetyRules(text).concernHits.length > 0;
+  const confidence = themes.length === 0 ? "low" : (text.trim().split(/\s+/).length < 4 && chips.length === 0) ? "low" : themes.length && scores[themes[0]] >= 2 ? "high" : "medium";
+  const summary = themes.length ? `You're dealing with ${themes.map(x => THEMES[x].toLowerCase()).join(", ").replace(/, ([^,]*)$/, " and $1")}${duration !== "unknown" ? ", for " + DURATION[duration].toLowerCase() : ""}.` : "I couldn't quite tell what's going on yet.";
+  return { themes, duration, severity, preference, possible_risk, confidence, summary };
+}
+
+// 3b. Real AI (optional). Calls this site's own /api/ai endpoint, which holds the key on the server
+// and talks to Google Gemini. Only the cleaned text is sent. If the endpoint isn't there (e.g. inside a
+// sandboxed preview or a local file), Saathi uses the built-in matcher instead.
+const AI_URL = "/api/ai";
+async function probeAI() {
+  if (!/^https?:$/.test(location.protocol)) return;
+  try {
+    const r = await withTimeout(fetch(AI_URL, { method: "GET" }), 4000);
+    if (!r.ok) return;
+    const j = await r.json();
+    if (j.available) { S.ai = { available: true, provider: j.provider, model: j.model }; S.settings.mode = "live"; render(); }
+  } catch (e) { /* not available here: stay in demo mode */ }
+}
+async function callAI(body) {
+  if (S.settings.outage) throw new Error("Simulated outage (reviewer toggle)");
+  const r = await fetch(AI_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ("HTTP " + r.status));
+  return j;
+}
+async function liveUnderstand(redactedText, chips) {
+  const j = await callAI({ task: "understand", note: redactedText, chips });
+  const out = j.out;
+  out.themes = (out.themes || []).filter(x => THEMES[x]).slice(0, 3);
+  if (!DURATION[out.duration] || !SEVERITY[out.severity]) throw new Error("Answer outside the allowed values");
+  return { out, model: j.model };
+}
+async function liveReasons(u, items, ctxNote) {
+  const j = await callAI({ task: "reasons",
+    user: { themes: u.themes.map(x => THEMES[x]), duration: DURATION[u.duration], affects_day: SEVERITY[u.severity], time_available: ctxNote.time, context: ctxNote.extra },
+    items: items.map(i => ({ id: i.id, type: TYPE_LABEL[i.type], title: i.title, minutes: i.mins, about: i.desc })) });
+  return j.reasons || {};
+}
+
+// 4. Ranking: plain scoring rules, visible in the panel. The AI never picks items.
+function timeBudget(time) { return time === "5" ? 5 : time === "15" ? 20 : time === "talk" ? 60 : 20; }
+function rank(u, ctx) {
+  const p = persona(); const j = journey();
+  const budget = timeBudget(ctx.time);
+  const pref = ctx.pref || (u.preference !== "none" ? u.preference : null);
+  const rows = [];
+  for (const it of CATALOGUE) {
+    if (ctx.exclude.includes(it.id)) continue;
+    const lvl = LEVEL[it.type]; const b = {};
+    let th = 0;
+    if (it.themes[0] === "*") th = 1;
+    else u.themes.forEach((t, i) => { if (it.themes.includes(t)) th += i === 0 ? 3 : 2; });
+    if (th === 0) continue;
+    b.fit = th;
+    const mins = it.mins;
+    if (ctx.time === "talk") b.time = lvl === 3 ? 4 : -1;
+    else b.time = mins <= budget ? 1.5 : mins <= budget * 2 ? -1 : -3;
+    b.pref = pref && FORMAT[it.type] === pref ? 2 : 0;
+    const sev = u.severity;
+    b.need = sev === "mild" ? ({ 1: 1, 2: 0, 3: -1 })[lvl] : sev === "moderate" ? ({ 1: .5, 2: 1, 3: .5 })[lvl] : ({ 1: -1, 2: .5, 3: 2.5 })[lvl];
+    if (ctx.tier === "amber" && lvl === 3) b.need += 4;
+    if (ctx.ladder) b.ladder = lvl >= ctx.ladder ? 1.5 : -2;
+    const past = j.filter(e => e.item === it.id);
+    if (past.length) {
+      const last = past[past.length - 1];
+      if (last.outcome === "not_helped") b.history = -4;
+      else if (it.type === "assessment" && S.day - last.day < 30) b.history = -3;
+      else if (last.outcome === "helped" && it.type === "program") b.history = 1;
+      else b.history = -1.5;
+    }
+    if (p.counsellor && it.type === "session") b.counsellor = 2;
+    if (p.homework && it.id === p.homework.id) b.counsellor = (b.counsellor || 0) + 1.5;
+    if (ctx.boost && ctx.boost[it.id]) b.signal = ctx.boost[it.id];
+    const score = Object.values(b).reduce((a, c) => a + c, 0);
+    rows.push({ it, b, score: Math.round(score * 10) / 10 });
+  }
+  rows.sort((a, b) => b.score - a.score);
+  const picks = [];
+  for (const r of rows) {
+    if (picks.length === 0) { picks.push(r); continue; }
+    if (picks.length >= 3) break;
+    if (picks.some(x => x.it.type === r.it.type)) continue;
+    picks.push(r);
+  }
+  return { rows, picks };
+}
+function displayItem(it) {
+  const p = persona();
+  if (it.type === "session" && p.counsellor) return { ...it, title: `Session with ${p.counsellor.name}`, desc: `Your counsellor already knows your story. Next free slot: ${p.counsellor.earlierSlot}.` };
+  return it;
+}
+function templateWhy(it, u, ctx, r) {
+  const p = persona();
+  const t = u.themes.find(x => it.themes.includes(x));
+  const bits = [];
+  if (ctx.reasonLead) bits.push(ctx.reasonLead);
+  else if (it.type === "session" && p.counsellor) bits.push(`${p.counsellor.short} already knows what you've been working on`);
+  else if (it.type === "chat") bits.push(ctx.time === "talk" ? "You said you'd like to talk to someone" : "Talking it through with a person can help when it's a lot");
+  else if (t) bits.push(`You mentioned ${THEMES[t].toLowerCase()}`);
+  if (it.type === "assessment") bits.push("a quick check shows where you are and helps a counsellor if you need one later");
+  else if (it.type === "program") bits.push(`small daily steps (${it.mins} min a day) work better than one big effort`);
+  else if (ctx.time && ctx.time !== "talk" && it.mins <= timeBudget(ctx.time) && LEVEL[it.type] < 3) bits.push(`it takes just ${it.mins} minutes`);
+  else if (it.type === "session") bits.push("a full session gives you time to work through it properly");
+  return (bits.join(", and ") + ".").replace(/^./, c => c.toUpperCase());
+}
+
+/* ================= FLOW ================= */
+function log(step, title, who, detail, data) { S.log.push({ step, title, who, detail, data }); }
+
+async function runCheckin() {
+  const p = persona(); const ck = S.ck;
+  S.log = []; S.fb = []; S.flags = {};
+  S.screen = "loading"; render();
+  const red = redact(ck.text, p);
+  log(1, "Privacy filter", "rule", red.removed.length ? `Removed ${red.removed.length} personal detail(s) on this device before anything else saw the text.` : "No personal details found.", { sent_text: red.text, removed: red.removed.map(r => r.kind) });
+  const sr = safetyRules(ck.text);
+  log(2, "Safety rules", "rule", sr.crisisHits.length ? "Crisis words found. Suggestions stopped and human help shown." : sr.concernHits.length ? "Concern words found. The app will ask a safety question." : "No crisis or concern words.", { crisis_words: sr.crisisHits, concern_words: sr.concernHits });
+  if (sr.crisisHits.length) {
+    S.safety = { tier: "red", source: "rules" };
+    addEvent({ kind: "safety", title: "Saathi connected you to human help", human: true });
+    await wait(350); S.screen = "crisis"; render(); return;
+  }
+  let u; const t0 = performance.now(); let mode = "Built-in matcher (no AI)"; let note = "";
+  if (S.settings.mode === "live" && S.ai.available) {
+    try { const r = await withTimeout(liveUnderstand(red.text, ck.chips), 20000); u = r.out; mode = `Real AI (${S.ai.provider}, ${r.model})`; note = "Answer checked against the allowed values."; }
+    catch (e) { u = builtinUnderstand(red.text, ck.chips); mode = "Built-in matcher (fallback)"; note = `Real AI failed: ${shortErr(e)}. Fell back so the user is not blocked.`; S.flags.fallback = true; }
+  } else { u = builtinUnderstand(red.text, ck.chips); await wait(500); }
+  if (S.settings.misread && u.themes.length) {
+    const wrong = u.themes.includes("relationships") ? "grief" : "relationships";
+    u = { ...u, themes: [wrong, ...u.themes.slice(1)] }; u.summary = `You're dealing with ${u.themes.map(x => THEMES[x].toLowerCase()).join(", ").replace(/, ([^,]*)$/, " and $1")}.`; note += " Reviewer toggle: the first theme was swapped for a wrong one on purpose, to show the user correcting it.";
+  }
+  u.possible_risk = u.possible_risk || sr.concernHits.length > 0;
+  log(3, "Understanding", "ai", `${mode}, ${Math.round(performance.now() - t0)} ms. ${note}`.trim(), u);
+  S.u = u; S.ctx = { time: ck.time, pref: ck.pref, exclude: [], tier: "green" };
+  S.safety = { tier: "green", phq: null, ask: null, answer: null };
+  if (u.confidence === "low" || !u.themes.length) { S.screen = "clarify"; render(); return; }
+  S.screen = "understood"; render();
+}
+function shortErr(e) { const m = String(e && (e.message || e)); if (/fetch|network|Failed to|import|CSP|Load failed/i.test(m)) return "could not reach the AI service (network blocked or offline)"; if (/401|auth|api key|x-api-key/i.test(m)) return "API key rejected"; if (/timed out/i.test(m)) return "timed out"; return m.slice(0, 120); }
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+function withTimeout(p, ms) { return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timed out")), ms))]); }
+
+function safetyNeedsQuestion() {
+  const s = S.safety, u = S.u;
+  return s.phq === 3 || u.severity === "high" || u.possible_risk;
+}
+async function buildRecs(opts = {}) {
+  const u = S.u; const ctx = S.ctx;
+  const s = S.safety;
+  ctx.tier = (s.phq === 3 || u.severity === "high" || s.answer === "unsure") ? "amber" : "green";
+  if (!opts.silentLog) log(4, "Safety decision", "rule",
+    ctx.tier === "amber" ? "High distress: human support moved to the top. Self-help stays as a backup." : "Low risk: self-help options allowed.",
+    { phq2_item_answer: s.phq === null ? "n/a" : ["Not at all", "Several days", "More than half the days", "Nearly every day"][s.phq], safety_question: s.answer || "not asked", tier: ctx.tier });
+  const { rows, picks } = rank(u, ctx);
+  S.recs = { rows, picks: picks.map(r => ({ ...r, it: displayItem(r.it) })) };
+  S.recs.picks.forEach((r, i) => { r.why = templateWhy(r.it, u, i === 0 ? ctx : { ...ctx, reasonLead: null }, r); });
+  let whoWrote = "Templates (no AI)";
+  if (S.settings.mode === "live" && S.ai.available && !S.settings.outage) {
+    try { const map = await withTimeout(liveReasons(u, S.recs.picks.map(r => r.it), { time: ctx.time === "talk" ? "wants to talk to someone" : (ctx.time || "not said") + " minutes", extra: ctx.reasonLead || "" }), 15000);
+      for (const r of S.recs.picks) if (map[r.it.id]) r.why = map[r.it.id]; whoWrote = "Real AI (only for the 3 items the rules already chose)"; }
+    catch (e) { whoWrote = "Templates (real AI failed: " + shortErr(e) + ")"; }
+  }
+  log(opts.step || 5, opts.title || "Ranking", "rule", `Scored ${rows.length} catalogue items with fixed rules. Picked the best one, then the best two of other types. Reasons written by: ${whoWrote}.`, { table: rows.slice(0, 8) });
+}
+
+/* ================= RENDER ================= */
+const $ = s => document.querySelector(s);
+const ICON = {
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>',
+  path: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H15a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h6.5"/></svg>',
+  help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
+};
+function dayLabel(d) { const diff = d - S.day; if (diff === 0) return "Today"; if (diff === -1) return "Yesterday"; if (diff < 0) return `${-diff} days ago`; if (diff === 1) return "Tomorrow"; return `In ${diff} days`; }
+
+function renderPersonas() {
+  $("#personas").innerHTML = '<small>Try as:</small>' + Object.values(PERSONAS).map(p =>
+    `<button class="pbtn" data-a="persona" data-v="${p.id}" aria-pressed="${p.id === S.pid}" title="${esc(p.blurb)}"><span class="av">${p.initial}</span>${p.name}<span class="muted small">· ${esc(p.blurb.split(".")[0])}</span></button>`).join("");
+}
+function renderNav() {
+  const cur = { home: "home", checkin: "checkin", clarify: "checkin", understood: "checkin", next: "checkin", doing: "checkin", done: "checkin", followup: "home", journey: "journey", crisis: "crisis", loading: "checkin", midweek: "home" }[S.screen];
+  const items = [["home", "Home", ICON.home], ["checkin", "Check in", ICON.chat], ["journey", "My journey", ICON.path], ["crisis", "Get help", ICON.help]];
+  $("#nav").innerHTML = items.map(([k, l, ic]) => `<button data-a="nav" data-v="${k}" ${cur === k ? 'aria-current="page"' : ""} class="${k === "crisis" ? "helpnav" : ""}">${ic}<span>${l}</span></button>`).join("");
+}
+
+const SCREENS = {};
+SCREENS.home = () => {
+  const p = persona(); const j = journey();
+  const pend = S.pendingFollow && S.day >= S.pendingFollow.due;
+  let card = "";
+  if (pend) {
+    const it = displayItem(byId(S.pendingFollow.item));
+    card = `<div class="card saathi"><span class="eyebrow">Saathi · quick check</span><h2>How did "${esc(it.title)}" go?</h2><p>You tried it ${dayLabel(S.pendingFollow.day).toLowerCase()}. One tap helps me suggest a better next step.</p><button class="btn block" data-a="go" data-v="followup">Tell me how it went</button></div>`;
+  } else if (p.id === "rahul") {
+    const hw = byId(p.homework.id); const doneDays = j.filter(e => e.item === hw.id && e.kind === "step").length;
+    const next = p.counsellor.nextSessionDay - S.day;
+    card = `<div class="card saathi"><span class="eyebrow">Between sessions with ${esc(p.counsellor.short)}</span>
+      <h2>${esc(hw.title)}: day ${Math.min(doneDays + 1, p.homework.of)} of ${p.homework.of}</h2>
+      <p>${esc(p.counsellor.short)} suggested this in your last session. Your next session is ${next > 0 ? esc(p.counsellor.nextSessionLabel) : "today"}.</p>
+      <div class="stack"><b class="small">How has this week been so far?</b>
+      <div class="grid3"><button class="opt" data-a="midweek" data-v="better">Better</button><button class="opt" data-a="midweek" data-v="same">Same</button><button class="opt" data-a="midweek" data-v="worse">Worse</button></div></div>
+      <button class="link" data-a="startItem" data-v="e1">Open today's journal</button></div>`;
+  } else if (p.id === "meera") {
+    const sc = j.filter(e => e.item === "s1" && e.score != null);
+    const a = sc[sc.length - 2], b = sc[sc.length - 1];
+    card = `<div class="card saathi"><span class="eyebrow">Saathi noticed</span><h2>Your stress score went up from ${a.score} to ${b.score}</h2>
+      <p>That's since your check ${dayLabel(a.day).toLowerCase()}, with exams ${p.examsInDays} days away. Here's one thing that could help this week.</p>
+      <button class="btn block" data-a="signalRec">See my next step</button></div>`;
+  } else {
+    card = `<div class="card saathi"><span class="eyebrow">Saathi</span><h2>Not sure where to start?</h2><p>Tell me in a line how you've been. I'll suggest one thing that fits, and you stay in control.</p><button class="btn block" data-a="go" data-v="checkin">Start a 1-minute check-in</button></div>`;
+  }
+  return `<div class="hello"><h1>Hi ${esc(p.name)}</h1><p>${esc(p.role)} · ${esc(p.org)}</p></div>
+    ${card}
+    ${p.id !== "ananya" && !pend ? `<button class="card soft" style="text-align:left" data-a="go" data-v="checkin"><b>Something else on your mind?</b><span class="muted small">Tell Saathi how you're feeling right now.</span></button>` : ""}
+    <div class="stack"><span class="eyebrow" style="color:var(--sub)">Everything on YourDOST</span>
+    <div class="grid3">${[["50+", "Counsellors"], ["24×7", "Instant chat"], ["120", "Videos"], ["300", "Articles"], ["12", "Self-checks"], ["9", "Programs"]].map(([n, l]) => `<div class="tile"><b>${n}</b>${l}</div>`).join("")}</div>
+    <p class="small muted" style="margin:0">That's a lot to choose from. Saathi picks one place to start.</p></div>`;
+};
+SCREENS.checkin = () => {
+  const ck = S.ck || (S.ck = freshCheckin()); const p = persona();
+  const chips = Object.keys(CHIP_THEME);
+  const can = (ck.text.trim().length > 0 || ck.chips.length > 0) && ck.time;
+  return `<button class="back" data-a="nav" data-v="home">‹ Home</button>
+  <div><span class="eyebrow">Check-in · 1 minute</span><h1 style="font-size:21px;margin-top:4px">How have you been feeling?</h1></div>
+  <div class="stack"><label class="q" for="ckText">In your own words (English, Hindi or Hinglish)</label>
+    <textarea id="ckText" placeholder="e.g. I can't switch off after work and I'm snapping at everyone at home">${esc(ck.text)}</textarea>
+    <div class="row between"><button class="link small" data-a="example">Use an example for ${esc(p.name)}</button><span class="small muted">Optional if you tap below</span></div></div>
+  <div class="stack"><span class="q">Or tap what fits</span><div class="row">${chips.map(c => `<button class="chip" data-a="chip" data-v="${esc(c)}" aria-pressed="${ck.chips.includes(c)}">${esc(c)}</button>`).join("")}</div></div>
+  <div class="stack"><span class="q">How much time do you have right now?</span><div class="seg">
+    ${[["5", "5 minutes"], ["15", "15–20 min"], ["talk", "I want to talk to someone"]].map(([v, l]) => `<button data-a="time" data-v="${v}" aria-pressed="${ck.time === v}">${l}</button>`).join("")}</div></div>
+  <div class="stack"><span class="q">Do you prefer to… <span class="muted small">(optional)</span></span><div class="row">
+    ${[["watch", "Watch"], ["read", "Read"], ["do", "Do an exercise"]].map(([v, l]) => `<button class="chip" data-a="pref" data-v="${v}" aria-pressed="${ck.pref === v}">${l}</button>`).join("")}</div></div>
+  <div class="note">${ICON.lock}<span>Names, phone numbers and company names are removed before anything is analysed. Your employer never sees what you write here.</span></div>
+  <button class="btn block" data-a="submitCheckin" ${can ? "" : "disabled"}>Continue</button>`;
+};
+SCREENS.loading = () => `<div class="loading"><div class="spin"></div><span>Saathi is reading what you wrote…</span></div>`;
+SCREENS.clarify = () => `<button class="back" data-a="go" data-v="checkin">‹ Edit what I wrote</button>
+  <div><span class="eyebrow">One quick question</span><h1 style="font-size:21px;margin-top:4px">I want to get this right. Which of these is closest?</h1></div>
+  <div class="row">${Object.entries(THEMES).filter(([k]) => k !== "smoking" || true).map(([k, l]) => `<button class="chip" data-a="clarifyPick" data-v="${k}" aria-pressed="${S.u.themes.includes(k)}">${esc(l)}</button>`).join("")}</div>
+  <button class="btn block" data-a="clarifyDone" ${S.u.themes.length ? "" : "disabled"}>Continue</button>
+  <button class="btn ghost block" data-a="startItem" data-v="c1">I'd rather just talk to someone</button>`;
+SCREENS.understood = () => {
+  const u = S.u, s = S.safety; const red = S.log.find(l => l.step === 1);
+  const removed = red ? red.data.removed.length : 0;
+  const ask = s.phq !== null && safetyNeedsQuestion();
+  const ready = s.phq !== null && (!ask || s.answer);
+  const others = Object.keys(THEMES).filter(k => !u.themes.includes(k));
+  return `<button class="back" data-a="go" data-v="checkin">‹ Edit what I wrote</button>
+  <div><span class="eyebrow">Here's what I understood</span><h1 style="font-size:20px;margin-top:4px">${esc(u.summary)}</h1></div>
+  ${S.flags.fallback ? `<div class="note">${ICON.lock}<span>Saathi used its simpler built-in reader this time. Please check the tags below.</span></div>` : ""}
+  <div class="card soft"><div class="row between"><b class="small">What it's about</b><span class="small muted">Tap × to remove</span></div>
+    <div class="row">${u.themes.map(t => `<span class="tag">${esc(THEMES[t])}<button data-a="rmTheme" data-v="${t}" aria-label="Remove ${esc(THEMES[t])}">×</button></span>`).join("")}
+    <select id="addTheme" aria-label="Add something" style="width:auto;padding:5px 10px;border-radius:999px;font-size:13px"><option value="">+ Add</option>${others.map(k => `<option value="${k}">${esc(THEMES[k])}</option>`).join("")}</select></div>
+    <b class="small">For how long</b><div class="row">${Object.entries(DURATION).map(([k, l]) => `<button class="chip" data-a="dur" data-v="${k}" aria-pressed="${u.duration === k}">${l}</button>`).join("")}</div>
+    <b class="small">How much it's affecting your day</b><div class="row">${Object.entries(SEVERITY).map(([k, l]) => `<button class="chip" data-a="sev" data-v="${k}" aria-pressed="${u.severity === k}">${l}</button>`).join("")}</div></div>
+  <div class="stack"><span class="q">Over the last 2 weeks, how often have you felt down, depressed or hopeless?</span>
+    ${["Not at all", "Several days", "More than half the days", "Nearly every day"].map((l, i) => `<button class="opt" data-a="phq" data-v="${i}" aria-pressed="${s.phq === i}">${l}</button>`).join("")}
+    <span class="small muted">A standard screening question (PHQ-2). It helps Saathi know when a person should step in.</span></div>
+  ${ask ? `<div class="banner warn"><b>Thank you for telling me. One more question, because it matters.</b><span>Sometimes when people feel this way, they have thoughts of hurting themselves or that life isn't worth living. Have you had thoughts like that recently?</span>
+    <div class="stack">${[["yes", "Yes"], ["no", "No"], ["unsure", "I'd rather not say"]].map(([v, l]) => `<button class="opt" data-a="safeAns" data-v="${v}" aria-pressed="${s.answer === v}">${l}</button>`).join("")}</div></div>` : ""}
+  <div class="note">${ICON.lock}<span>${removed ? `${removed} personal detail${removed > 1 ? "s were" : " was"} removed before analysis. ` : ""}Saathi keeps these tags, not your exact words.</span></div>
+  <button class="btn block" data-a="showNext" ${ready && u.themes.length ? "" : "disabled"}>Show my next step</button>`;
+};
+SCREENS.next = () => {
+  const { picks } = S.recs; const [main, ...alts] = picks; const ctx = S.ctx;
+  const amber = ctx.tier === "amber";
+  const fbOpen = S.fbOpen;
+  return `${S.ctx.header ? `<button class="back" data-a="nav" data-v="home">‹ Home</button>` : `<button class="back" data-a="go" data-v="understood">‹ Back</button>`}
+  <div><span class="eyebrow">${esc(S.ctx.header || "Your next step")}</span></div>
+  ${amber ? `<div class="banner warn"><b>It sounds like a lot right now.</b><span>Talking to a person is likely to help most, so that's at the top. The other options are still here if you'd prefer.</span></div>` : ""}
+  ${S.u.possible_risk && !amber ? `<div class="banner help"><span>If things ever feel too heavy, a counsellor is available 24×7. <button class="link" data-a="nav" data-v="crisis">Get help now</button></span></div>` : ""}
+  <div class="card rec-main"><div class="row between"><span class="pill t-${main.it.type}">${TYPE_LABEL[main.it.type]}</span><span class="small muted">${main.it.perDay ? `${main.it.mins} min a day · ${main.it.days} days` : `${main.it.mins} min`}</span></div>
+    <h2>${esc(main.it.title)}</h2><p>${esc(main.it.desc)}</p>
+    <div class="why"><b>Why this: </b>${esc(main.why)}</div>
+    <button class="btn block" data-a="startItem" data-v="${main.it.id}">${main.it.type === "session" ? "Choose a time" : main.it.type === "chat" ? "Start chat" : "Start now"}</button></div>
+  ${alts.length ? `<div class="stack"><span class="small muted"><b>Or try one of these</b></span>${alts.map(r => `<button class="card rec-alt" data-a="startItem" data-v="${r.it.id}"><span class="pill t-${r.it.type}">${TYPE_LABEL[r.it.type]}</span><span class="txt"><b>${esc(r.it.title)}</b><span>${esc(r.why)}</span></span><span class="chev">›</span></button>`).join("")}</div>` : ""}
+  ${fbOpen ? `<div class="card soft"><b class="small">What's not right?</b><div class="row">${[["long", "Too long"], ["talk", "I'd rather talk to someone"], ["tried", "I've tried this"], ["off", "That's not what I'm dealing with"], ["read", "I'd rather read"], ["watch", "I'd rather watch"]].map(([v, l]) => `<button class="chip" data-a="fb" data-v="${v}">${l}</button>`).join("")}</div></div>`
+    : `<button class="btn ghost block" data-a="fbOpen">Not quite right?</button>`}
+  <div class="note">${ICON.help}<span>Need a person instead? <button class="link small" data-a="startItem" data-v="c1">Chat with a counsellor now</button></span></div>`;
+};
+SCREENS.doing = () => {
+  const it = displayItem(byId(S.current)); const p = persona();
+  let body = "";
+  if (it.type === "video") body = `<div class="player"><span class="cap">${esc(it.title)} · ${it.mins}:00</span><button class="playb" data-a="play" aria-label="Play">▶</button><div class="bar"><i id="pbar"></i></div></div>
+    <p class="muted small">Demo video. Press play to simulate watching.</p>`;
+  else if (it.type === "article") body = `<div class="article stack">${(it.body || []).map(x => `<p>${esc(x)}</p>`).join("")}</div>`;
+  else if (it.id === "e3") body = `<div class="breath">Breathe</div><p class="muted small" style="text-align:center">In for 4 · hold for 4 · out for 4 · hold for 4. Follow the circle for a few rounds.</p>`;
+  else if (it.id === "e1") body = `<div class="stack"><label class="q" for="j1">What happened?</label><textarea id="j1" placeholder="e.g. My manager replied 'see me' to my report"></textarea>
+    <label class="q" for="j2">What went through your mind?</label><textarea id="j2" placeholder="e.g. I'm going to be fired"></textarea>
+    <label class="q" for="j3">A kinder, more balanced way to see it</label><textarea id="j3" placeholder="e.g. He may just want to discuss it. One report doesn't decide my job."></textarea>
+    <span class="small muted">Stays on this device. ${p.counsellor ? `You can choose to share entries with ${esc(p.counsellor.short)}.` : ""}</span></div>`;
+  else if (it.type === "exercise") body = `<div class="stack"><p>${esc(it.desc)}</p>${[1, 2, 3].map(n => `<input type="text" id="ex${n}" placeholder="${n}.">`).join("")}</div>`;
+  else if (it.type === "assessment") body = `<div class="stack"><p class="small muted">Sample of the questions (demo). The real check has ${it.desc.match(/\d+/) ? it.desc.match(/\d+/)[0] : "a few"} questions.</p>
+    ${["In the last month, how often have you felt unable to control the important things in your life?", "How often have you felt nervous and stressed?"].map((q, qi) => `<b class="small">${q}</b><div class="row">${["Never", "Sometimes", "Often", "Very often"].map((o, i) => `<button class="chip" data-a="aq" data-v="${qi}-${i}" aria-pressed="${(S.aq || {})[qi] === i}">${o}</button>`).join("")}</div>`).join("")}</div>`;
+  else if (it.type === "program") body = `<div class="card soft"><b>Day 1 of ${it.days}</b>${it.plan.map((d, i) => `<div class="row"><span class="pill">${i === 0 ? "Today" : "Day " + (i + 1)}</span><span class="small">${esc(d)}</span></div>`).join("")}<span class="small muted">${it.mins} minutes a day. Saathi will remind you at a time you choose.</span></div>`;
+  else if (it.type === "chat") body = `<div class="stack"><div class="bubble">Hi ${esc(p.name)}, I'm Neha, a counsellor at YourDOST. I'm here. Take your time and tell me what's been going on.</div>
+    <div class="note">${ICON.lock}<span>Counsellors are trained professionals. This chat is confidential.</span></div>
+    <label class="toggle"><input type="checkbox" id="shareCtx" ${S.shareCtx ? "checked" : ""} data-a="shareCtx"><span>Share what I told Saathi so I don't have to repeat myself<br><span class="muted small">Neha would see: ${esc(S.u ? S.u.themes.map(t => THEMES[t]).join(", ") : "your recent check-ins")}${S.u ? ` · ${DURATION[S.u.duration].toLowerCase()}` : ""}. Not your exact words.</span></span></label>
+    <textarea id="chatMsg" placeholder="Type a message…" style="min-height:60px"></textarea></div>`;
+  else if (it.type === "session") {
+    const slots = p.counsellor ? [p.counsellor.earlierSlot, p.counsellor.nextSessionLabel + " (current booking)"] : ["Tomorrow, 6:30 pm", "Tomorrow, 8:00 pm", "Sat, 11:00 am"];
+    body = `<div class="card soft"><b>${p.counsellor ? esc(p.counsellor.name) : "Arjun Mehta, counselling psychologist"}</b><span class="small muted">${p.counsellor ? "Your counsellor · 3 sessions together" : "Suggested by the matching step · work stress, sleep · English, Hindi"}</span></div>
+      <div class="stack">${slots.map((s, i) => `<button class="slot" data-a="slot" data-v="${i}" aria-pressed="${S.slot === i}">${esc(s)}</button>`).join("")}</div>
+      ${p.counsellor ? `<label class="toggle"><input type="checkbox" id="shareC" data-a="shareCounsellor" ${prefs().shareWithCounsellor ? "checked" : ""}><span>Let ${esc(p.counsellor.short)} see my Saathi check-ins before the session<br><span class="muted small">Tags and how you've been doing. Never your exact words.</span></span></label>` : ""}`;
+  }
+  const doneLabel = it.type === "session" ? "Confirm booking" : it.type === "chat" ? "End chat (demo)" : it.type === "program" ? "Start day 1" : it.type === "assessment" ? "See my result" : "Mark as done";
+  return `<button class="back" data-a="backFromDoing">‹ Back</button>
+  <div><span class="pill t-${it.type}">${TYPE_LABEL[it.type]}</span><h1 style="font-size:21px;margin-top:6px">${esc(it.title)}</h1></div>
+  ${body}
+  <button class="btn block" data-a="finishItem" ${it.type === "session" && S.slot == null ? "disabled" : ""}>${doneLabel}</button>`;
+};
+SCREENS.done = () => {
+  const it = displayItem(byId(S.current)); const p = persona();
+  const human = LEVEL[it.type] === 3;
+  const msg = it.type === "session" ? `Booked: ${esc(S.slotLabel)} with ${p.counsellor ? esc(p.counsellor.name) : "Arjun Mehta"}.` :
+    it.type === "chat" ? "Thanks for reaching out. Saathi has noted that you spoke to a counsellor." :
+    it.type === "assessment" ? "Your result: moderate stress (demo). Saved to your journey so a counsellor can see the trend if you choose." :
+    it.type === "program" ? `Day 1 done. ${it.days - 1} days to go.` : "Nice work. Small steps count.";
+  return `<div class="card saathi" style="margin-top:12px"><span class="eyebrow">${human ? "You're connected" : "Done"}</span><h2>${msg}</h2>
+    <p>${S.pendingFollow ? `Saathi will check in with you in 3 days to see if it helped, and suggest what comes next.` : ""}</p></div>
+  ${S.pendingFollow ? `<button class="btn block" data-a="skip3">⏩ Skip ahead 3 days (demo)</button>` : ""}
+  <button class="btn ghost block" data-a="nav" data-v="home">Back to home</button>`;
+};
+SCREENS.followup = () => {
+  const f = S.pendingFollow; const it = displayItem(byId(f.item));
+  return `<button class="back" data-a="nav" data-v="home">‹ Home</button>
+  <div><span class="eyebrow">Saathi · ${dayLabel(f.day).toLowerCase()} you tried</span><h1 style="font-size:21px;margin-top:4px">Did "${esc(it.title)}" help?</h1></div>
+  <div class="stack">${[["lot", "Yes, a lot"], ["little", "A little"], ["no", "Not really"], ["worse", "I feel worse"]].map(([v, l]) => `<button class="opt" data-a="follow" data-v="${v}" aria-pressed="${S.followAns === v}">${l}</button>`).join("")}</div>
+  ${S.followAns === "worse" ? `<div class="banner warn"><b>I'm sorry it's been harder.</b><span>Have you had thoughts of hurting yourself or that life isn't worth living?</span><div class="stack">${[["yes", "Yes"], ["no", "No"], ["unsure", "I'd rather not say"]].map(([v, l]) => `<button class="opt" data-a="followSafe" data-v="${v}">${l}</button>`).join("")}</div></div>` : ""}`;
+};
+SCREENS.crisis = () => {
+  const p = persona();
+  return `<div class="crisis stack" style="gap:14px"><span class="eyebrow" style="color:var(--help)">Talk to a person now</span>
+  <h1>You don't have to go through this alone.</h1>
+  <p class="muted" style="margin:0">${S.safety && S.safety.tier === "red" ? "What you shared sounds really painful. I've paused my suggestions, because right now a person can help far more than I can." : "If things feel too heavy, please reach out to a person. These are always available."}</p>
+  <button class="btn help block" data-a="startItem" data-v="c1">Chat with a YourDOST counsellor now · 24×7</button>
+  ${p.counsellor ? `<button class="btn ghost block" data-a="startItem" data-v="c2">Get an urgent slot with ${esc(p.counsellor.short)}</button>` : ""}
+  <div class="helpline"><div><b>14416</b><span>Tele-MANAS · free · 24×7 · Government of India</span></div><button class="toolbtn" data-a="copy" data-v="14416">Copy</button></div>
+  <div class="helpline"><div><b>112</b><span>Emergency services, if you are in immediate danger</span></div><button class="toolbtn" data-a="copy" data-v="112">Copy</button></div>
+  <div class="note">${ICON.lock}<span>${S.safety && S.safety.tier === "red" ? "A YourDOST care team member will reach out to you within the hour (demo). " : ""}This screen is chosen by fixed safety rules, not by AI.</span></div>
+  ${S.safety && S.safety.tier === "red" ? `<button class="link" data-a="nav" data-v="home">I'm safe, take me back</button>` : ""}</div>`;
+};
+SCREENS.journey = () => {
+  const p = persona(); const j = journey().slice().sort((a, b) => b.day - a.day); const pr = prefs();
+  const tagsSeen = {}; j.forEach(e => (e.tags || []).forEach(t => tagsSeen[t] = 1));
+  const tried = j.filter(e => e.kind === "step" && e.item);
+  const helped = tried.filter(e => e.outcome === "helped").map(e => byId(e.item).title);
+  return `<div><span class="eyebrow">My journey</span><h1 style="font-size:21px;margin-top:4px">What you've done so far</h1></div>
+  ${j.length ? `<div class="tl">${j.map(e => `<div class="ev"><span class="dot ${e.human ? "h" : ""}"></span><div><b>${esc(e.title)}</b><span>${dayLabel(e.day)}${e.detail ? " · " + esc(e.detail) : ""}${e.outcome === "helped" ? " · helped" : e.outcome === "not_helped" ? " · didn't help" : e.outcome === "little" ? " · helped a little" : ""}</span></div></div>`).join("")}</div>`
+    : `<div class="card soft"><p>Nothing yet. Your check-ins and the steps you try will show up here.</p><button class="btn" data-a="go" data-v="checkin">Start a check-in</button></div>`}
+  <div class="card"><h3>What Saathi remembers</h3>
+    <p>${Object.keys(tagsSeen).length ? "Topics: " + Object.keys(tagsSeen).map(t => THEMES[t]).join(", ") + "." : "No topics yet."} ${tried.length ? `Steps tried: ${tried.length}.` : ""} ${helped.length ? "What helped: " + [...new Set(helped)].join(", ") + "." : ""}</p>
+    <p class="small">Saathi keeps short tags and outcomes, never your exact words. Your employer or college never sees any of this.</p>
+    ${p.counsellor ? `<label class="toggle"><input type="checkbox" data-a="shareCounsellor" ${pr.shareWithCounsellor ? "checked" : ""}><span>Share my Saathi summary with ${esc(p.counsellor.name)}</span></label>` : ""}
+    ${S.confirmDel ? `<div class="banner help"><b>Delete everything Saathi remembers?</b><span class="small">This can't be undone. Your counselling records stay with your counsellor.</span><div class="row"><button class="btn help" data-a="delAll">Delete</button><button class="btn ghost" data-a="cancelDel">Cancel</button></div></div>`
+      : `<button class="link small" data-a="askDel" style="align-self:flex-start;color:var(--help)">Delete my Saathi history</button>`}</div>`;
+};
+SCREENS.midweek = SCREENS.home;
+
+function render() {
+  renderPersonas(); renderNav();
+  $("#dayp").textContent = S.day === 0 ? "Demo day 1" : `Demo day ${S.day + 1}`;
+  $("#screen").innerHTML = (SCREENS[S.screen] || SCREENS.home)();
+  $("#screen").scrollTop = 0;
+  $("#toastHost").innerHTML = S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : "";
+  renderPanel();
+  const ta = $("#ckText"); if (ta) ta.addEventListener("input", e => { S.ck.text = e.target.value; const b = document.querySelector('[data-a="submitCheckin"]'); if (b) b.disabled = !((S.ck.text.trim() || S.ck.chips.length) && S.ck.time); });
+  const add = $("#addTheme"); if (add) add.addEventListener("change", e => { if (e.target.value) { S.u.themes.push(e.target.value); log(3.5, "User correction", "human", `User added "${THEMES[e.target.value]}".`, null); render(); } });
+}
+function toast(msg) { S.toast = msg; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { S.toast = null; $("#toastHost").innerHTML = ""; }, 3200); }
+
+function renderPanel() {
+  const panel = $("#panel"); const stage = $("#stage");
+  panel.hidden = !S.panelOpen; stage.classList.toggle("nopanel", !S.panelOpen);
+  $("#panelBtn").setAttribute("aria-expanded", S.panelOpen);
+  if (!S.panelOpen) return;
+  const st = S.settings;
+  const steps = S.log.slice().sort((a, b) => a.step - b.step);
+  panel.innerHTML = `<header><div><h2>Behind the scenes</h2><p>For reviewers. Shows what each part of Saathi did on the last action.</p></div><button class="toolbtn" data-a="closePanel" aria-label="Close panel">✕</button></header>
+  <div class="pbody">
+    <section class="psec"><h3>Who decides what</h3>
+      <div class="kv"><dt><span class="who rule">Rules</span></dt><dd>Privacy filter, safety, ranking, follow-up ladder</dd>
+      <dt><span class="who ai">AI</span></dt><dd>Reading free text into tags; writing the one-line reasons</dd>
+      <dt><span class="who human">People</span></dt><dd>Crisis support, counselling, and the user, who can correct every tag</dd></div></section>
+    <section class="psec"><h3>AI mode</h3>
+      ${S.ai.available ? `<p class="small" style="margin:0"><span class="ok-t">● Real AI connected</span> · ${esc(S.ai.provider)} (${esc(S.ai.model)}), called through this site's server. The key never reaches the browser.</p>`
+        : `<p class="small" style="margin:0"><span class="warn-t">● Real AI not available here</span> · this copy has no AI server (for example a preview or a downloaded file), so Saathi uses its built-in word matcher. The hosted version uses Google Gemini.</p>`}
+      <div class="row"><label class="toggle"><input type="radio" name="mode" data-a="mode" value="demo" ${st.mode === "demo" ? "checked" : ""}><span>Built-in matcher (no AI)</span></label>
+      <label class="toggle"><input type="radio" name="mode" data-a="mode" value="live" ${st.mode === "live" ? "checked" : ""} ${S.ai.available ? "" : "disabled"}><span>Real AI</span></label></div>
+      <label class="toggle"><input type="checkbox" data-a="misread" ${st.misread ? "checked" : ""}><span>Simulate an AI misreading <span class="muted small">(swaps the first tag for a wrong one, to show the user fixing it)</span></span></label>
+      ${S.ai.available ? `<label class="toggle"><input type="checkbox" data-a="outage" ${st.outage ? "checked" : ""}><span>Simulate an AI outage <span class="muted small">(shows the automatic fallback)</span></span></label>` : ""}</section>
+    <section class="psec"><h3>Quick tests</h3><div class="row">
+      <button class="chip" data-a="test" data-v="hinglish">Hinglish note</button><button class="chip" data-a="test" data-v="vague">Vague note</button>
+      <button class="chip" data-a="test" data-v="high">High distress</button><button class="chip" data-a="test" data-v="crisis">Crisis words</button></div>
+      <span class="small muted">Each fills the check-in for the current person and runs it.</span></section>
+    <section class="psec"><h3>Last run</h3>
+      ${steps.length ? steps.map(l => `<div class="step"><span class="n">${Number.isInteger(l.step) ? l.step : "✎"}</span><div class="c"><div><b>${esc(l.title)}</b><span class="who ${l.who}">${l.who === "rule" ? "Rules" : l.who === "ai" ? "AI" : "Person"}</span></div><p>${esc(l.detail)}</p>${l.data ? panelData(l) : ""}</div></div>`).join("") : `<p class="empty">Nothing yet. Run a check-in or tap a home card, and each step will appear here.</p>`}
+    </section>
+  </div>`;
+}
+function panelData(l) {
+  if (l.data && l.data.table) {
+    const keys = ["fit", "time", "pref", "need", "ladder", "history", "counsellor", "signal"];
+    const used = keys.filter(k => l.data.table.some(r => r.b[k] !== undefined && r.b[k] !== 0));
+    const picked = (S.recs && S.recs.picks || []).map(p => p.it.id);
+    return `<div class="tbl"><table><thead><tr><th>Item</th>${used.map(k => `<th>${k}</th>`).join("")}<th>Total</th></tr></thead><tbody>${l.data.table.map(r => `<tr class="${picked.includes(r.it.id) ? "top" : ""}"><td>${picked.includes(r.it.id) ? "★ " : ""}${esc(r.it.title.length > 26 ? r.it.title.slice(0, 25) + "…" : r.it.title)}</td>${used.map(k => `<td>${r.b[k] !== undefined ? r.b[k] : ""}</td>`).join("")}<td>${r.score}</td></tr>`).join("")}</tbody></table></div><span class="small muted">fit = topic match · time = fits time available · pref = format · need = matches how much it affects their day · history = tried before · counsellor = their own counsellor or homework · signal = home-screen data</span>`;
+  }
+  return `<pre class="code">${esc(JSON.stringify(l.data, null, 2))}</pre>`;
+}
+
+/* ================= ACTIONS ================= */
+const EXAMPLES = {
+  hinglish: "Kaam ka bahut pressure hai, boss har din deadline badal deta hai. Raat ko neend nahi aati, 2 hafte se aisa hi chal raha hai.",
+  vague: "idk",
+  high: "I can't cope anymore. I'm crying every day, can't get out of bed and nothing helps. Feels hopeless for months.",
+  crisis: "Everything is too much. I don't want to live like this anymore."
+};
+function startCheckinWith(text, time = "15") { S.ck = { text, chips: [], time, pref: null }; runCheckin(); }
+function startItem(id) {
+  S.current = id; S.slot = null; S.aq = {}; S.screen = "doing";
+  render(); maybePlay(false);
+}
+function maybePlay() {}
+function finishItem() {
+  const it = displayItem(byId(S.current)); const p = persona();
+  if (it.type === "session") S.slotLabel = (p.counsellor ? [p.counsellor.earlierSlot, p.counsellor.nextSessionLabel] : ["Tomorrow, 6:30 pm", "Tomorrow, 8:00 pm", "Sat, 11:00 am"])[S.slot];
+  const human = LEVEL[it.type] === 3;
+  addEvent({ kind: human ? (it.type === "session" ? "session" : "chat") : "step", item: it.id, human,
+    title: it.type === "session" ? `Booked: ${it.title}` : it.type === "chat" ? "Chatted with a counsellor" : (p.homework && it.id === p.homework.id ? `${it.title}, day ${journey().filter(e => e.item === it.id).length + 1}` : it.title),
+    tags: S.u ? S.u.themes.slice() : [], outcome: null, detail: it.type === "session" ? S.slotLabel : undefined });
+  if (it.type === "chat" && S.shareCtx) log(6, "Handoff to counsellor", "human", "User chose to share their Saathi tags with the counsellor.", { shared: S.u ? { themes: S.u.themes, duration: S.u.duration, affects_day: S.u.severity } : "recent check-ins" });
+  S.pendingFollow = human ? null : { item: it.id, day: S.day, due: S.day + 3 };
+  S.screen = "done"; render();
+}
+function followUp(ans) {
+  const f = S.pendingFollow; const it = byId(f.item);
+  const j = journey(); const ev = [...j].reverse().find(e => e.item === f.item && e.day === f.day);
+  if (ev) { ev.outcome = ans === "lot" ? "helped" : ans === "little" ? "little" : "not_helped"; store.set("saathi.v1.j." + S.pid, j); }
+  S.log = [];
+  const u = S.u || { themes: it.themes.filter(t => t !== "*").slice(0, 2), duration: "weeks", severity: "moderate", preference: "none", possible_risk: false, summary: "" };
+  S.u = { ...u };
+  const cur = LEVEL[it.type];
+  let ladder, lead, header;
+  if (ans === "lot") { ladder = it.type === "program" ? 2 : 2; lead = `Since "${it.title}" helped, this keeps the progress going`; header = "Keep it going"; }
+  else if (ans === "little") { ladder = Math.min(cur + 1, 3); lead = `"${it.title}" helped a little, so this goes one step further`; header = "One step further"; }
+  else { ladder = 3; S.u.severity = "high"; lead = `"${it.title}" didn't help enough, and that's useful to know. A person can tailor support to you`; header = "Let's try something different"; }
+  log(1, "Follow-up answer", "human", `User said: ${({ lot: "Yes, a lot", little: "A little", no: "Not really", worse: "I feel worse" })[ans]}.`, { item: it.title, outcome_saved: ev ? ev.outcome : null });
+  log(2, "Follow-up ladder", "rule", `Rule: helped → keep going at the same level or a structured program; a little → one level up; not really or worse → a person. Target level: ${ladder} (1 self-help, 2 self-check or program, 3 person).`, { from_level: cur, target_level: ladder });
+  S.ctx = { time: "15", pref: null, exclude: ans === "lot" ? [] : [it.id], tier: "green", ladder, reasonLead: lead, header };
+  S.safety = { tier: "green", phq: ans === "worse" || ans === "no" ? 2 : 0, answer: S.followSafe || null };
+  S.pendingFollow = null; S.followAns = null; S.followSafe = null;
+  addEvent({ kind: "followup", title: `Follow-up: ${it.title}`, detail: ({ lot: "helped a lot", little: "helped a little", no: "didn't help", worse: "felt worse" })[ans], tags: S.u.themes });
+  buildRecs({ step: 3, title: "Ranking (with ladder)" }).then(() => { S.screen = "next"; render(); });
+}
+async function signalRec() {
+  const p = persona(); const j = journey();
+  const sc = j.filter(e => e.item === "s1" && e.score != null); const a = sc[sc.length - 2], b = sc[sc.length - 1];
+  S.log = [];
+  log(1, "Home-screen signals", "rule", "No typing needed. Built from data the platform already has.", { stress_score: `${a.score} → ${b.score}`, exams_in_days: p.examsInDays, past_steps: j.filter(e => e.kind === "step").map(e => `${byId(e.item).title} (${e.outcome || "no feedback"})`) });
+  S.u = { themes: ["exam_stress", "focus"], duration: "weeks", severity: b.score >= 20 ? "moderate" : "mild", preference: "none", possible_risk: false, summary: "" };
+  log(2, "Rules turned signals into tags", "rule", "Student + rising stress score + exams soon → exam stress and focus. Severity from the score band.", S.u);
+  S.ctx = { time: "15", pref: null, exclude: [], tier: "green", reasonLead: `Your stress score rose from ${a.score} to ${b.score} with exams in ${p.examsInDays} days`, header: "Your next step this week", boost: { p3: 1 } };
+  S.safety = { tier: "green", phq: 0, answer: null };
+  await buildRecs({ step: 3, title: "Ranking", silentLog: true });
+  S.screen = "next"; render();
+}
+async function midweek(v) {
+  const p = persona(); S.log = [];
+  addEvent({ kind: "checkin", title: `Mid-week check-in: ${v}`, tags: ["anxiety", "work_stress"] });
+  log(1, "Mid-week check-in", "human", `User tapped "${v}".`, { counsellor: p.counsellor.name, next_session: p.counsellor.nextSessionLabel });
+  S.u = { themes: ["anxiety", "work_stress"], duration: "weeks", severity: v === "worse" ? "high" : "moderate", preference: "none", possible_risk: false, summary: "" };
+  if (v === "better") {
+    S.ctx = { time: "15", pref: null, exclude: [], tier: "green", reasonLead: `It's working, and ${p.counsellor.short} asked for 5 days`, header: "Keep going until Thursday", boost: { e1: 3 } };
+    S.safety = { tier: "green", phq: 0 };
+  } else if (v === "same") {
+    S.ctx = { time: "15", pref: null, exclude: [], tier: "green", ladder: 1, reasonLead: "A quick way to calm racing thoughts while you keep journalling", header: "Something extra for this week", boost: { v4: 3 } };
+    S.safety = { tier: "green", phq: 1 };
+  } else { S.screen = "midweekWorse"; render(); return; }
+  log(2, "Rule", "rule", v === "better" ? "Better → keep the counsellor's plan as the main step." : "Same → keep the plan, add one light self-help step, and note it for the next session.", null);
+  await buildRecs({ step: 3, silentLog: true });
+  S.screen = "next"; render();
+}
+SCREENS.midweekWorse = () => {
+  const p = persona();
+  return `<button class="back" data-a="nav" data-v="home">‹ Home</button>
+  <div><span class="eyebrow">Mid-week check-in</span><h1 style="font-size:21px;margin-top:4px">I'm sorry this week has been harder.</h1></div>
+  <div class="banner warn"><span>Have you had thoughts of hurting yourself or that life isn't worth living?</span><div class="stack">${[["yes", "Yes"], ["no", "No"], ["unsure", "I'd rather not say"]].map(([v, l]) => `<button class="opt" data-a="mwSafe" data-v="${v}">${l}</button>`).join("")}</div></div>
+  <span class="small muted">You don't need to wait until ${esc(p.counsellor.nextSessionLabel)} to get support.</span>`;
+};
+async function mwSafe(v) {
+  const p = persona();
+  log(2, "Safety question", "rule", `Answer: ${v}.`, null);
+  if (v === "yes") { S.safety = { tier: "red" }; addEvent({ kind: "safety", title: "Saathi connected you to human help", human: true }); S.screen = "crisis"; render(); return; }
+  S.ctx = { time: "15", pref: null, exclude: [], tier: "amber", reasonLead: `${p.counsellor.short} knows your story, and an earlier session means you don't wait until Thursday`, header: "Let's not wait until Thursday", boost: { c2: 3 } };
+  S.safety = { tier: "amber", phq: 2, answer: v };
+  await buildRecs({ step: 3, silentLog: true });
+  log(4, "Counsellor alert", "human", prefs().shareWithCounsellor ? `Sharing is on, so ${p.counsellor.name} gets a short note: "Rahul reported feeling worse mid-week." No exact words.` : `Sharing is off. Saathi asks the user before telling ${p.counsellor.short} anything.`, null);
+  S.screen = "next"; render();
+}
+
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-a]"); if (!el) return;
+  const a = el.dataset.a, v = el.dataset.v;
+  if (el.tagName === "INPUT" && el.type === "checkbox" && !["shareCtx", "shareCounsellor", "misread", "outage"].includes(a)) return;
+  switch (a) {
+    case "persona": S.pid = v; S.screen = "home"; S.ck = null; S.u = null; S.recs = null; S.log = []; S.pendingFollow = null; S.day = 0; render(); break;
+    case "nav": if (v === "checkin") S.ck = S.ck && S.screen === "checkin" ? S.ck : freshCheckin(); if (v === "crisis" && S.screen !== "crisis") S.safety = S.safety && S.safety.tier === "red" ? S.safety : { tier: "self" }; S.screen = v; render(); break;
+    case "go": if (v === "checkin" && !S.ck) S.ck = freshCheckin(); S.screen = v; render(); break;
+    case "example": S.ck.text = persona().example; if (!S.ck.time) S.ck.time = "15"; render(); break;
+    case "chip": { const c = S.ck.chips; const i = c.indexOf(v); i >= 0 ? c.splice(i, 1) : c.push(v); render(); break; }
+    case "time": S.ck.time = v; render(); break;
+    case "pref": S.ck.pref = S.ck.pref === v ? null : v; render(); break;
+    case "submitCheckin": runCheckin(); break;
+    case "clarifyPick": { const t = S.u.themes; const i = t.indexOf(v); i >= 0 ? t.splice(i, 1) : t.push(v); render(); break; }
+    case "clarifyDone": S.u.summary = `You're dealing with ${S.u.themes.map(x => THEMES[x].toLowerCase()).join(", ")}.`; if (S.u.severity === "mild" && S.u.themes.length > 1) S.u.severity = "moderate"; log(3.5, "Clarifying question", "human", "Saathi wasn't sure, so it asked. User picked: " + S.u.themes.map(x => THEMES[x]).join(", "), null); S.screen = "understood"; render(); break;
+    case "rmTheme": S.u.themes = S.u.themes.filter(x => x !== v); log(3.5, "User correction", "human", `User removed "${THEMES[v]}".`, null); render(); break;
+    case "dur": S.u.duration = v; render(); break;
+    case "sev": S.u.severity = v; S.safety.answer = null; render(); break;
+    case "phq": S.safety.phq = +v; S.safety.answer = null; render(); break;
+    case "safeAns":
+      S.safety.answer = v;
+      if (v === "yes") { log(4, "Safety decision", "rule", "User answered yes to the safety question. Suggestions stopped; human help shown.", { tier: "red" }); S.safety.tier = "red"; addEvent({ kind: "safety", title: "Saathi connected you to human help", human: true }); S.screen = "crisis"; }
+      render(); break;
+    case "showNext":
+      S.log = S.log.filter(l => l.step < 4);
+      addEvent({ kind: "checkin", title: "Check-in", detail: S.u.themes.map(t => THEMES[t]).join(" · "), tags: S.u.themes.slice() });
+      S.ctx.header = null; S.fbOpen = false;
+      await buildRecs(); S.screen = "next"; render(); break;
+    case "fbOpen": S.fbOpen = true; render(); break;
+    case "fb": {
+      const main = S.recs.picks[0].it;
+      const lbl = { long: "Too long", talk: "I'd rather talk to someone", tried: "I've tried this", off: "That's not what I'm dealing with", read: "I'd rather read", watch: "I'd rather watch" }[v];
+      if (v === "long") S.ctx.time = "5";
+      if (v === "talk") S.ctx.time = "talk";
+      if (v === "tried") { S.ctx.exclude.push(main.id); addEvent({ kind: "step", item: main.id, title: main.title, outcome: "not_helped", detail: "said they'd tried it" }); }
+      if (v === "off") { S.ctx.exclude.push(main.id); if (S.u.themes.length > 1) S.u.themes.push(S.u.themes.shift()); }
+      if (v === "read" || v === "watch") S.ctx.pref = v;
+      S.fbOpen = false;
+      S.log = S.log.filter(l => l.step < 5);
+      log(5, "\"Not quite right\" feedback", "human", `User said: ${lbl}. Ranking re-run with that change.`, { change: v, excluded: S.ctx.exclude, time: S.ctx.time, pref: S.ctx.pref });
+      await buildRecs({ step: 6, title: "Ranking (updated)", silentLog: true });
+      toast("Updated. Thanks, that helps Saathi learn what suits you."); break;
+    }
+    case "startItem": startItem(v); break;
+    case "backFromDoing": S.screen = S.recs ? "next" : "home"; render(); break;
+    case "play": { el.hidden = true; const bar = $("#pbar"); let w = 0; const t = setInterval(() => { w += 10; if (bar) bar.style.width = w + "%"; if (w >= 100) clearInterval(t); }, 250); break; }
+    case "aq": { const [q, i] = v.split("-").map(Number); S.aq[q] = i; render(); break; }
+    case "slot": S.slot = +v; render(); break;
+    case "shareCtx": S.shareCtx = el.checked; break;
+    case "shareCounsellor": { const pr = prefs(); pr.shareWithCounsellor = el.checked; setPrefs(pr); toast(el.checked ? `Sharing on. ${persona().counsellor.short} will see your Saathi summary.` : "Sharing off."); break; }
+    case "finishItem": finishItem(); break;
+    case "skip3": S.day += 3; S.screen = "home"; render(); toast("3 days later…"); break;
+    case "follow": S.followAns = v; if (v !== "worse") followUp(v); else render(); break;
+    case "followSafe": if (v === "yes") { S.safety = { tier: "red" }; S.pendingFollow = null; addEvent({ kind: "safety", title: "Saathi connected you to human help", human: true }); S.screen = "crisis"; render(); } else { S.followSafe = v; followUp("worse"); } break;
+    case "signalRec": signalRec(); break;
+    case "midweek": midweek(v); break;
+    case "mwSafe": mwSafe(v); break;
+    case "copy": try { await navigator.clipboard.writeText(v); toast("Copied " + v); } catch (err) { toast("Number: " + v); } break;
+    case "askDel": S.confirmDel = true; render(); break;
+    case "cancelDel": S.confirmDel = false; render(); break;
+    case "delAll": store.set("saathi.v1.j." + S.pid, []); S.confirmDel = false; S.pendingFollow = null; render(); toast("Deleted. Saathi no longer remembers anything about you."); break;
+    case "closePanel": S.panelOpen = false; render(); break;
+    case "mode": S.settings.mode = el.value; renderPanel(); break;
+    case "misread": S.settings.misread = el.checked; break;
+    case "outage": S.settings.outage = el.checked; break;
+    case "test": S.panelOpen = window.innerWidth > 860; startCheckinWith(EXAMPLES[v], v === "high" ? "15" : "15"); break;
+  }
+});
+$("#panelBtn").addEventListener("click", () => { S.panelOpen = !S.panelOpen; render(); });
+$("#resetBtn").addEventListener("click", () => { Object.keys(PERSONAS).forEach(k => { store.del("saathi.v1.j." + k); store.del("saathi.v1.p." + k); }); Object.assign(S, { screen: "home", day: 0, ck: null, u: null, recs: null, log: [], pendingFollow: null, current: null }); render(); toast("Demo reset."); });
+render();
+probeAI();
+</script>
+
+</body>
+</html>
