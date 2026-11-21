@@ -50,7 +50,7 @@ async function callGemini({ system, user, schema }) {
   const key = env("GEMINI_API_KEY");
   const model = env("GEMINI_MODEL") || "gemini-2.5-flash";
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 15000);
+  const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
