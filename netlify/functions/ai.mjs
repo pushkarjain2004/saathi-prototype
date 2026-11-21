@@ -46,13 +46,12 @@ const REASONS_SCHEMA = {
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
 const env = name => (globalThis.Netlify?.env?.get?.(name)) ?? process.env[name];
 
-// Model choice: GEMINI_MODEL if set, otherwise the newest "flash" model this key can use.
-// Google retires model names over time, so on a "not found" error we look the list up again.
-let resolvedModel = null;
-async function pickModel(key, force) {
-  if (resolvedModel && !force) return resolvedModel;
-  const wanted = env("GEMINI_MODEL");
-  if (wanted && !force) return (resolvedModel = wanted);
+// Model choice: GEMINI_MODEL if set, then the flash models this key can use (stable before preview,
+// newest first). Google retires and overloads models over time, so if one fails we try the next.
+let ranked = null;      // cached list of candidate models
+let lastGood = null;    // the model that answered most recently
+async function listModels(key) {
+  if (ranked) return ranked;
   const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": key } });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`Could not list AI models (${res.status})`);
@@ -62,16 +61,23 @@ async function pickModel(key, force) {
     .filter(n => /flash/.test(n) && !/(image|tts|audio|live|exp|embedding|vision|thinking)/.test(n));
   const score = n => {
     const v = parseFloat((n.match(/gemini-(\d+(\.\d+)?)/) || [])[1] || 0);
-    return v * 100 + (/lite/.test(n) ? 0 : 10) + (/preview/.test(n) ? 0 : 5) + (/latest/.test(n) ? 1 : 0);
+    return (/preview/.test(n) ? 0 : 1000) + v * 10 + (/lite/.test(n) ? 0 : 2) + (/latest/.test(n) ? 1 : 0);
   };
-  names.sort((a, b) => score(b) - score(a));
+  names.sort((x, y) => score(y) - score(x));
   if (!names.length) throw new Error("No usable Gemini model for this key");
-  return (resolvedModel = names[0]);
+  return (ranked = names);
+}
+async function candidates(key) {
+  const list = [];
+  if (lastGood) list.push(lastGood);
+  if (env("GEMINI_MODEL")) list.push(env("GEMINI_MODEL"));
+  for (const n of await listModels(key)) list.push(n);
+  return [...new Set(list)];
 }
 
-async function generate(key, model, { system, user, schema }) {
+async function generate(key, model, { system, user, schema }, ms) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 8000);
+  const timer = setTimeout(() => ctrl.abort(), ms);
   try {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
@@ -90,23 +96,33 @@ async function generate(key, model, { system, user, schema }) {
 
 async function callGemini(job) {
   const key = env("GEMINI_API_KEY");
-  let model = await pickModel(key, false);
-  let { res, data } = await generate(key, model, job);
-  if (res.status === 404) { // model name retired or unknown: look up a current one and try once more
-    model = await pickModel(key, true);
-    ({ res, data } = await generate(key, model, job));
+  const deadline = Date.now() + 8500; // stay under Netlify's ~10 s limit
+  const tried = [];
+  for (const model of (await candidates(key)).slice(0, 4)) {
+    const left = deadline - Date.now();
+    if (left < 1500) break;
+    let res, data;
+    try { ({ res, data } = await generate(key, model, job, Math.min(left, 6000))); }
+    catch (e) { tried.push(`${model}: ${e.name === "AbortError" ? "timed out" : "network"}`); continue; }
+    if (!res.ok) {
+      tried.push(`${model}: ${res.status}${data?.error?.status ? " " + data.error.status : ""}`);
+      if (lastGood === model) lastGood = null;
+      if ([404, 429, 500, 503].includes(res.status)) continue; // retired, busy or out of quota: try the next model
+      break;
+    }
+    const text = (data.candidates?.[0]?.content?.parts || []).filter(p => !p.thought).map(p => p.text || "").join("");
+    if (!text) { tried.push(`${model}: empty answer`); continue; }
+    lastGood = model;
+    return { parsed: JSON.parse(text), model };
   }
-  if (!res.ok) throw new Error(`AI service error ${res.status}${data?.error?.status ? " " + data.error.status : ""}`);
-  const text = (data.candidates?.[0]?.content?.parts || []).filter(p => !p.thought).map(p => p.text || "").join("");
-  if (!text) throw new Error("AI returned no answer" + (data.promptFeedback?.blockReason ? ` (${data.promptFeedback.blockReason})` : ""));
-  return { parsed: JSON.parse(text), model };
+  throw new Error("AI service unavailable (" + tried.join("; ") + ")");
 }
 
 export default async (req) => {
   const key = env("GEMINI_API_KEY");
   if (req.method === "GET") {
     if (!key) return json(200, { available: false });
-    try { return json(200, { available: true, provider: "Google Gemini", model: await pickModel(key, false) }); }
+    try { const c = await candidates(key); return json(200, { available: true, provider: "Google Gemini", model: c[0] }); }
     catch (e) { return json(200, { available: false, error: String(e.message || e) }); }
   }
   if (req.method !== "POST") return json(405, { error: "Method not allowed" });
