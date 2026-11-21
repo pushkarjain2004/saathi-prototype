@@ -81,10 +81,10 @@ function thinkingFor(model) {
   if (/gemini-[3-9]/.test(model)) return { thinkingLevel: "low" };
   return null;
 }
-async function generate(key, model, job, ms, withThinkingConfig = true) {
+async function generate(key, model, job, ms, withThinkingConfig = true, outer = null) {
   const { system, user, schema } = job;
   const tc = withThinkingConfig ? thinkingFor(model) : null;
-  const ctrl = new AbortController();
+  const ctrl = outer || new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
   try {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
@@ -98,33 +98,46 @@ async function generate(key, model, job, ms, withThinkingConfig = true) {
       })
     });
     const data = await res.json().catch(() => ({}));
-    if (res.status === 400 && tc && /thinking/i.test(JSON.stringify(data))) return generate(key, model, job, ms, false); // model doesn't accept that setting
+    if (res.status === 400 && tc && /thinking/i.test(JSON.stringify(data))) return generate(key, model, job, ms, false, outer); // model doesn't accept that setting
     return { res, data };
   } finally { clearTimeout(timer); }
 }
 
+// Free-tier answers usually take ~1 s but sometimes hang. So we "hedge": start one request, and if it
+// hasn't answered after a couple of seconds, start another in parallel (same model, then the next one),
+// and use whichever answers first. Everything stays under Netlify's ~10 s limit.
 async function callGemini(job) {
   const key = env("GEMINI_API_KEY");
-  const deadline = Date.now() + 9000; // stay under Netlify's ~10 s limit
+  const list = await candidates(key);
+  const plan = [list[0], list[0], list[1] || list[0], list[1] || list[0]];
+  const starts = [0, 2500, 4500, 6500];
+  const deadline = Date.now() + 9000;
   const tried = [];
-  for (const model of (await candidates(key)).slice(0, 4)) {
-    const left = deadline - Date.now();
-    if (left < 1500) break;
-    let res, data;
-    try { ({ res, data } = await generate(key, model, job, Math.min(left, 5000))); }
-    catch (e) { tried.push(`${model}: ${e.name === "AbortError" ? "timed out" : "network"}`); continue; }
-    if (!res.ok) {
-      tried.push(`${model}: ${res.status}${data?.error?.status ? " " + data.error.status : ""}`);
-      if (lastGood === model) lastGood = null;
-      if ([404, 429, 500, 503].includes(res.status)) continue; // retired, busy or out of quota: try the next model
-      break;
-    }
-    const text = (data.candidates?.[0]?.content?.parts || []).filter(p => !p.thought).map(p => p.text || "").join("");
-    if (!text) { tried.push(`${model}: empty answer`); continue; }
-    lastGood = model;
-    return { parsed: JSON.parse(text), model };
+  const ctrls = [];
+  const attempt = (model, delay) => new Promise((resolve, reject) => {
+    setTimeout(async () => {
+      if (done) return reject(new Error("skipped"));
+      const left = deadline - Date.now();
+      if (left < 1200) return reject(new Error("no time left"));
+      const ctrl = new AbortController(); ctrls.push(ctrl);
+      try {
+        const { res, data } = await generate(key, model, job, left, true, ctrl);
+        if (!res.ok) { tried.push(`${model}: ${res.status}${data?.error?.status ? " " + data.error.status : ""}`); if (lastGood === model) lastGood = null; return reject(new Error("bad status")); }
+        const text = (data.candidates?.[0]?.content?.parts || []).filter(p => !p.thought).map(p => p.text || "").join("");
+        if (!text) { tried.push(`${model}: empty answer`); return reject(new Error("empty")); }
+        resolve({ parsed: JSON.parse(text), model });
+      } catch (e) { tried.push(`${model}: ${e.name === "AbortError" ? "timed out" : "failed"}`); reject(e); }
+    }, delay);
+  });
+  let done = false;
+  try {
+    const out = await Promise.any(plan.map((m, i) => attempt(m, starts[i])));
+    done = true; lastGood = out.model; ctrls.forEach(c => c.abort());
+    return out;
+  } catch {
+    done = true; ctrls.forEach(c => c.abort());
+    throw new Error("AI service unavailable (" + [...new Set(tried)].join("; ") + ")");
   }
-  throw new Error("AI service unavailable (" + tried.join("; ") + ")");
 }
 
 export default async (req) => {
