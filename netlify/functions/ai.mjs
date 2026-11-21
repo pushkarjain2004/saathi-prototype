@@ -61,7 +61,7 @@ async function listModels(key) {
     .filter(n => /flash/.test(n) && !/(image|tts|audio|live|exp|embedding|vision|thinking)/.test(n));
   const score = n => {
     const v = parseFloat((n.match(/gemini-(\d+(\.\d+)?)/) || [])[1] || 0);
-    return (/preview/.test(n) ? 0 : 1000) + v * 10 + (/lite/.test(n) ? 0 : 2) + (/latest/.test(n) ? 1 : 0);
+    return (/preview/.test(n) ? 0 : 1000) + v * 10 + (/lite/.test(n) ? 3 : 0) + (/latest/.test(n) ? 1 : 0);
   };
   names.sort((x, y) => score(y) - score(x));
   if (!names.length) throw new Error("No usable Gemini model for this key");
@@ -75,7 +75,15 @@ async function candidates(key) {
   return [...new Set(list)];
 }
 
-async function generate(key, model, { system, user, schema }, ms) {
+// Thinking makes answers slow; this job is simple classification, so turn it down where the model allows.
+function thinkingFor(model) {
+  if (/gemini-2\.5/.test(model)) return { thinkingBudget: /pro/.test(model) ? 128 : 0 };
+  if (/gemini-[3-9]/.test(model)) return { thinkingLevel: "low" };
+  return null;
+}
+async function generate(key, model, job, ms, withThinkingConfig = true) {
+  const { system, user, schema } = job;
+  const tc = withThinkingConfig ? thinkingFor(model) : null;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
   try {
@@ -86,23 +94,24 @@ async function generate(key, model, { system, user, schema }, ms) {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: "user", parts: [{ text: user }] }],
-        generationConfig: { temperature: 0.2, responseMimeType: "application/json", responseSchema: schema }
+        generationConfig: { temperature: 0.2, responseMimeType: "application/json", responseSchema: schema, ...(tc ? { thinkingConfig: tc } : {}) }
       })
     });
     const data = await res.json().catch(() => ({}));
+    if (res.status === 400 && tc && /thinking/i.test(JSON.stringify(data))) return generate(key, model, job, ms, false); // model doesn't accept that setting
     return { res, data };
   } finally { clearTimeout(timer); }
 }
 
 async function callGemini(job) {
   const key = env("GEMINI_API_KEY");
-  const deadline = Date.now() + 8500; // stay under Netlify's ~10 s limit
+  const deadline = Date.now() + 9000; // stay under Netlify's ~10 s limit
   const tried = [];
   for (const model of (await candidates(key)).slice(0, 4)) {
     const left = deadline - Date.now();
     if (left < 1500) break;
     let res, data;
-    try { ({ res, data } = await generate(key, model, job, Math.min(left, 6000))); }
+    try { ({ res, data } = await generate(key, model, job, Math.min(left, 5000))); }
     catch (e) { tried.push(`${model}: ${e.name === "AbortError" ? "timed out" : "network"}`); continue; }
     if (!res.ok) {
       tried.push(`${model}: ${res.status}${data?.error?.status ? " " + data.error.status : ""}`);
